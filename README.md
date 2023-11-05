@@ -5,7 +5,7 @@ This is a simple email client built with Next.js and Postgres. It's built to sho
 - Navigate between routes in a column layout while maintaining scroll position (layouts support)
 - Submit forms without JavaScript enabled (progressive enhancement)
 - Navigate between routes extremely fast (prefetching and caching)
-- Retain your position in the UI on reload (URL state)
+- Retain your UI position on reload (URL state)
 
 The first version of the UI was built with [v0](https://v0.dev/t/RPsRRQilTDp).
 

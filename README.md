@@ -85,3 +85,10 @@ VALUES (1, 1),
        (7, 5),
        (8, 6);
 ```
+
+## Relationships
+
+- Users can send and receive emails (users.id -> emails.sender_id and emails.recipient_id)
+- Users can have multiple folders (users.id -> user_folders.user_id)
+- Folders can contain multiple emails (folders.id -> email_folders.folder_id)
+- An email can be in multiple folders (emails.id -> email_folders.email_id)

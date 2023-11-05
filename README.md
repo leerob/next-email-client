@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next.js Email Client
 
-## Getting Started
+## TODO
 
-First, run the development server:
+- Need to clear form after sending email
+- Probably need both sender and recipient everywhere so to and from are right
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Schema
+
+```
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE emails (
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER REFERENCES users(id),
+    recipient_id INTEGER REFERENCES users(id),
+    subject VARCHAR(255),
+    body TEXT,
+    sent_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE folders (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE user_folders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    folder_id INTEGER REFERENCES folders(id)
+);
+
+CREATE TABLE email_folders (
+    id SERIAL PRIMARY KEY,
+    email_id INTEGER REFERENCES emails(id),
+    folder_id INTEGER REFERENCES folders(id)
+);
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Sample Data
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+INSERT INTO users (first_name, last_name, email)
+VALUES ('John', 'Doe', 'john.doe@example.com'),
+       ('Jane', 'Doe', 'jane.doe@example.com'),
+       ('Alice', 'Smith', 'alice.smith@example.com'),
+       ('Bob', 'Johnson', 'bob.johnson@example.com');
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+INSERT INTO emails (sender_id, recipient_id, subject, body, sent_date)
+VALUES (1, 2, 'Meeting Reminder', 'Don''t forget about our meeting tomorrow at 10am.', '2022-01-10 09:00:00'),
+       (1, 3, 'Hello', 'Just wanted to say hello.', '2022-01-09 08:00:00'),
+       (2, 1, 'Re: Meeting Reminder', 'I won''t be able to make it.', '2022-01-10 10:00:00'),
+       (3, 1, 'Re: Hello', 'Hello to you too!', '2022-01-09 09:00:00'),
+       (4, 1, 'Invitation', 'You are invited to my party.', '2022-01-11 07:00:00'),
+       (1, 2, 'Work Project', 'Let''s discuss the new work project.', '2022-01-12 07:00:00'),
+       (1, 4, 'Expenses Report', 'Please find the expenses report attached.', '2022-01-13 07:00:00'),
+       (4, 1, 'Personal Note', 'Let''s catch up sometime.', '2022-01-14 07:00:00');
 
-## Learn More
+INSERT INTO folders (name)
+VALUES ('Inbox'),
+       ('Flagged'),
+       ('Sent'),
+       ('Work'),
+       ('Expenses'),
+       ('Personal');
 
-To learn more about Next.js, take a look at the following resources:
+INSERT INTO user_folders (user_id, folder_id)
+VALUES (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
+       (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6),
+       (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6),
+       (4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6);
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+INSERT INTO email_folders (email_id, folder_id)
+VALUES (1, 1),
+       (2, 1),
+       (3, 3),
+       (4, 1),
+       (5, 1),
+       (6, 4),
+       (7, 5),
+       (8, 6);
+```

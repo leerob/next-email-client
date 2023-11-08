@@ -3,13 +3,23 @@ import { sendEmail } from '@/app/db/actions';
 import { getAllEmailAddresses } from '@/app/db/queries';
 import { SendIcon } from '@/app/icons/send';
 import { EmailBody } from './email-body';
+import { FolderColumn } from '@/app/components/folder-column';
 
-export default async function Page() {
+export default function Page() {
+  return (
+    <div className="grid grid-cols-6 gap-2 h-screen p-2">
+      <FolderColumn />
+      <Compose />
+    </div>
+  );
+}
+
+async function Compose() {
   const userEmails = await getAllEmailAddresses();
 
   return (
-    <form className="col-span-3 flex flex-col w-12/20" action={sendEmail}>
-      <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 p-2 sticky top-0  h-[60px]">
+    <form className="col-span-5 flex flex-col w-12/20" action={sendEmail}>
+      <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 p-2 sticky top-0 h-[60px]">
         <button
           className="flex ml-auto hover:bg-gray-200 dark:hover:bg-gray-800 rounded px-3 py-2"
           type="submit"

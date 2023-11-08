@@ -26,6 +26,7 @@ The first version of the UI was built with [v0](https://v0.dev/t/RPsRRQilTDp).
 - [ ] Need to add a way to manage users
 - [ ] Fix to/from to pull sender/recipient everywhere
 - [ ] Error handling for form submissions
+- [x] Add search
 
 ## Schema
 

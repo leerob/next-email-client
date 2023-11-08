@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { GeistSans } from 'geist/font';
+import { GeistSans } from 'geist/font/sans';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export default function RootLayout({
       lang="en"
       className="bg-white dark:bg-gray-950 text-black dark:text-white"
     >
-      <body className={GeistSans.className}>{children}</body>
+      <body className={GeistSans.variable}>{children}</body>
     </html>
   );
 }

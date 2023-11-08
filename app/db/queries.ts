@@ -37,10 +37,23 @@ type EmailWithSender = {
   email: string;
 };
 
-export async function getEmailsForFolder(folderName: string) {
+export async function getEmailsForFolder(folderName: string, search?: string) {
   const originalFolderName = toTitleCase(decodeURIComponent(folderName));
-
   let result;
+
+  if (search === undefined) {
+    result = await sql`
+      SELECT e.*, u.first_name, u.last_name, u.email
+      FROM emails e
+      JOIN email_folders ef ON e.id = ef.email_id
+      JOIN folders f ON ef.folder_id = f.id
+      JOIN users u ON e.recipient_id = u.id
+      WHERE f.name = ${originalFolderName}
+      ORDER BY e.sent_date DESC;
+    `;
+    const emails = result.rows as EmailWithSender[];
+    return emails;
+  }
 
   if (originalFolderName === 'Sent') {
     result = await sql`
@@ -50,6 +63,13 @@ export async function getEmailsForFolder(folderName: string) {
       JOIN folders f ON ef.folder_id = f.id
       JOIN users u ON e.recipient_id = u.id
       WHERE f.name = ${originalFolderName}
+      AND (
+        u.first_name ILIKE ${`%${search}%`}
+        OR u.last_name ILIKE ${`%${search}%`}
+        OR u.email ILIKE ${`%${search}%`}
+        OR e.subject ILIKE ${`%${search}%`}
+        OR e.body ILIKE ${`%${search}%`}
+      )
       ORDER BY e.sent_date DESC;
     `;
   } else {
@@ -60,6 +80,13 @@ export async function getEmailsForFolder(folderName: string) {
       JOIN folders f ON ef.folder_id = f.id
       JOIN users u ON e.sender_id = u.id
       WHERE f.name = ${originalFolderName}
+      AND (
+        u.first_name ILIKE ${`%${search}%`}
+        OR u.last_name ILIKE ${`%${search}%`}
+        OR u.email ILIKE ${`%${search}%`}
+        OR e.subject ILIKE ${`%${search}%`}
+        OR e.body ILIKE ${`%${search}%`}
+      )
       ORDER BY e.sent_date DESC;
     `;
   }

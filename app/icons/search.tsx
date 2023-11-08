@@ -1,7 +1,7 @@
-export function SearchIcon() {
+export function SearchIcon({ className }: { className: string }) {
   return (
     <svg
-      className=" w-5 h-5"
+      className={className}
       fill="none"
       height="24"
       stroke="currentColor"

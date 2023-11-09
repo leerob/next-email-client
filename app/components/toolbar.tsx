@@ -57,3 +57,9 @@ export function Toolbar() {
     </div>
   );
 }
+
+export function ToolbarSkeleton() {
+  return (
+    <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 py-4 px-2 sticky top-0 h-[60px]" />
+  );
+}

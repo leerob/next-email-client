@@ -1,6 +1,6 @@
 import { getEmailInFolder } from '@/app/db/queries';
 import { formatEmailString } from '@/app/db/utils';
-import { Toolbar } from '@/app/components/toolbar';
+import { Toolbar, ToolbarSkeleton } from '@/app/components/toolbar';
 import { EmailListColumn } from '@/app/components/email-list-column';
 import { FolderColumn } from '@/app/components/folder-column';
 import { EmailEmptyView } from '@/app/components/email-empty-view';
@@ -46,7 +46,9 @@ async function SelectedEmailColumn({
 
   return (
     <div className="col-span-3 flex flex-col w-12/20">
-      <Toolbar />
+      <Suspense fallback={<ToolbarSkeleton />}>
+        <Toolbar />
+      </Suspense>
       <div className="p-4 space-y-4 flex-grow overflow-y-auto">
         <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
           <h2 className="text-xl font-bold">{email.subject}</h2>

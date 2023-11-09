@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { ArrowLeftIcon } from '@/app/icons/arrow-left';
 import { ArrowRightIcon } from '@/app/icons/arrow-right';
 import { EmailIcon } from '@/app/icons/email';
@@ -11,11 +11,12 @@ import { Search } from './search';
 
 type Params = {
   name: string;
-  id: string;
 };
 
 export function Toolbar() {
   const params: Params = useParams();
+  const searchParams = useSearchParams();
+  const emailId = searchParams.get('id');
 
   return (
     <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 py-4 px-2 sticky top-0 h-[60px]">
@@ -30,7 +31,10 @@ export function Toolbar() {
           className="inline-flex"
           onSubmit={async (e) => {
             e.preventDefault();
-            await deleteEmail(params.name, params.id);
+
+            if (emailId) {
+              await deleteEmail(params.name, emailId);
+            }
           }}
         >
           <button

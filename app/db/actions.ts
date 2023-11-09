@@ -69,7 +69,7 @@ export async function sendEmail(formData: FormData) {
   } finally {
     client.release();
     revalidatePath('/', 'layout'); // Revalidate all data
-    redirect(`/f/sent/${newEmailId}`);
+    redirect(`/f/sent?id=${newEmailId}`);
   }
 }
 

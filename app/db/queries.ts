@@ -103,8 +103,7 @@ export async function getEmailInFolder(folderName: string, emailId: string) {
     JOIN email_folders ef ON e.id = ef.email_id
     JOIN folders f ON ef.folder_id = f.id
     JOIN users u ON e.sender_id = u.id
-    WHERE f.name = ${originalFolderName} AND e.id = ${emailId}
-    ORDER BY e.sent_date DESC;
+    WHERE f.name = ${originalFolderName} AND e.id = ${emailId};
   `;
   const email = result.rows[0] as EmailWithSender;
   return email;

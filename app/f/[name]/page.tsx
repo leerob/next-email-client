@@ -51,9 +51,11 @@ async function SelectedEmailColumn({
         <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
           <h2 className="text-xl font-bold">{email.subject}</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {`From: ${formatEmailString(email)}`}
+            {`From: ${folderName === 'sent' ? 'Me' : formatEmailString(email)}`}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">To: Me</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {`To: ${folderName === 'sent' ? formatEmailString(email) : 'Me'}`}
+          </p>
           <time className="text-xs text-gray-500 dark:text-gray-400">
             {new Date(email.sent_date).toLocaleString()}
           </time>

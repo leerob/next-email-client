@@ -36,7 +36,7 @@ async function Compose() {
           <label className="absolute left-3 top-4 text-gray-500 dark:text-gray-400">
             From:
           </label>
-          <p className="pl-14 border-none bg-white dark:bg-gray-950 text-white px-3 py-2 focus:outline-none">
+          <p className="pl-14 border-none bg-white dark:bg-gray-950 text-black dark:text-white px-3 py-2 focus:outline-none">
             your@email.com
           </p>
         </div>

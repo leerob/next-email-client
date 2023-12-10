@@ -31,7 +31,7 @@ export async function EmailListColumn({
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {email.subject}
                 </p>
-                <p className="text-sm truncate o verflow-ellipsis">
+                <p className="text-sm truncate overflow-ellipsis">
                   {email.body}
                 </p>
               </div>

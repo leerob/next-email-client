@@ -3,9 +3,11 @@
   "scripts": {
     "dev": "next dev --turbo",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "setup": "node -r dotenv/config ./app/scripts/setup.js dotenv_config_path=.env.local"
   },
   "dependencies": {
+    "dotenv": "^16.3.1",
     "geist": "^1.2.0",
     "next": "14.0.5-canary.5",
     "postgres": "^3.4.3",

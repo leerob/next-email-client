@@ -28,7 +28,18 @@ The first version of the UI was built with [v0](https://v0.dev/t/RPsRRQilTDp).
 - [x] Fix to/from to pull sender/recipient everywhere
 - [x] Add search
 
-## Environment Variables
+## Setup
+
+In order to run this project locally, you'll need to create a Postgres database and add the connection string to your `.env.local` file.
+
+Further, you'll need to create the tables and insert some sample data.
+
+Follow these steps to get started:
+
+1. Create a Postgres database
+2. Navigate to the `.env.local` tab in the quickstart section Postgres dashboard
+3. Copy the snippet and paste it into your `.env.local` file
+4. Run `pnpm run setup` to create the tables and insert sample data
 
 This example uses `postgres`, which makes it compatible with any Postgres database. You can use `DATABASE_URL` or `POSTGRES_URL` to connect to your database.
 

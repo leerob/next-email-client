@@ -34,7 +34,7 @@ async function Compose() {
         <hr className="border-t border-gray-200 dark:border-gray-800" />
         <div className="relative flex flex-col space-y-2">
           <label className="absolute left-3 top-4 text-gray-500 dark:text-gray-400">
-            From:
+            From: Me
           </label>
           <p className="pl-14 border-none bg-white dark:bg-gray-950 text-white px-3 py-2 focus:outline-none">
             your@email.com

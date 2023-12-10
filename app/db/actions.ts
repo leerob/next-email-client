@@ -1,108 +1,93 @@
 'use server';
 
-import { db } from '@vercel/postgres';
+import postgres from 'postgres';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { toTitleCase } from './utils';
 import { redirect } from 'next/navigation';
 
-const schema = z.object({
+let schema = z.object({
   subject: z.string(),
   email: z.string().email(),
   body: z.string(),
 });
 
+let sql = postgres(process.env.DATABASE_URL || process.env.POSTGRES_URL!, {
+  ssl: 'allow',
+});
+
 export async function sendEmail(formData: FormData) {
-  const parsed = schema.parse({
+  let parsed = schema.parse({
     subject: formData.get('subject'),
     email: formData.get('email'),
     body: formData.get('body'),
   });
 
-  const senderId = 1; // Replace with actual senderId
-  const client = await db.connect();
+  let senderId = 1; // Replace with actual senderId
   let newEmailId;
 
-  try {
-    await client.query('BEGIN');
-
-    // Get recipientId using the email
-    let recipientResult = await client.sql`
-      SELECT id FROM users WHERE email=${parsed.email};
-    `;
-
-    let recipientId;
-    if (recipientResult.rows.length > 0) {
-      recipientId = recipientResult.rows[0].id;
-    } else {
-      // Create new user if recipientId doesn't exist
-      recipientResult = await client.sql`
-        INSERT INTO users (email) VALUES (${parsed.email}) RETURNING id;
+  await sql
+    .begin(async (sql) => {
+      let recipientResult = await sql`
+        SELECT id FROM users WHERE email=${parsed.email};
       `;
-      recipientId = recipientResult.rows[0].id;
-    }
 
-    // Insert new email into emails table
-    const emailResult = await client.sql`
-      INSERT INTO emails (sender_id, recipient_id, subject, body, sent_date)
-      VALUES (${senderId}, ${recipientId}, ${parsed.subject}, ${parsed.body}, NOW())
-      RETURNING id;
-    `;
-    newEmailId = emailResult.rows[0].id;
+      let recipientId;
+      if (recipientResult.length > 0) {
+        recipientId = recipientResult[0].id;
+      } else {
+        recipientResult = await sql`
+          INSERT INTO users (email) VALUES (${parsed.email}) RETURNING id;
+        `;
+        recipientId = recipientResult[0].id;
+      }
 
-    // Get 'Sent' folder id
-    const folderResult = await client.sql`
-      SELECT id FROM folders WHERE name='Sent';
-    `;
-    const sentFolderId = folderResult.rows[0].id;
+      let emailResult = await sql`
+        INSERT INTO emails (sender_id, recipient_id, subject, body, sent_date)
+        VALUES (${senderId}, ${recipientId}, ${parsed.subject}, ${parsed.body}, NOW())
+        RETURNING id;
+      `;
+      newEmailId = emailResult[0].id;
 
-    // Add the new email to the 'Sent' folder
-    await client.sql`
-      INSERT INTO email_folders (email_id, folder_id)
-      VALUES (${newEmailId}, ${sentFolderId});
-    `;
+      let folderResult = await sql`
+        SELECT id FROM folders WHERE name='Sent';
+      `;
+      let sentFolderId = folderResult[0].id;
 
-    await client.query('COMMIT');
-  } catch (e) {
-    await client.query('ROLLBACK');
-    console.error('Transaction failed: ', e);
-  } finally {
-    client.release();
-    revalidatePath('/', 'layout'); // Revalidate all data
-    redirect(`/f/sent?id=${newEmailId}`);
-  }
+      await sql`
+        INSERT INTO email_folders (email_id, folder_id)
+        VALUES (${newEmailId}, ${sentFolderId});
+      `;
+    })
+    .catch((e) => {
+      console.error('Transaction failed: ', e);
+    });
+
+  revalidatePath('/', 'layout'); // Revalidate all data
+  redirect(`/f/sent?id=${newEmailId}`);
 }
 
 export async function deleteEmail(folderName: string, emailId: string) {
-  const client = await db.connect();
-  const originalFolderName = toTitleCase(decodeURIComponent(folderName));
+  let originalFolderName = toTitleCase(decodeURIComponent(folderName));
 
-  try {
-    await client.query('BEGIN');
+  await sql
+    .begin(async (sql) => {
+      let folderResult = await sql`
+        SELECT id FROM folders WHERE name=${originalFolderName};
+      `;
+      let folderId = folderResult[0].id;
 
-    // Get folder id using the folder name
-    let folderResult = await client.sql`
-      SELECT id FROM folders WHERE name=${originalFolderName};
-    `;
-    const folderId = folderResult.rows[0].id;
+      await sql`
+        DELETE FROM email_folders WHERE email_id=${emailId} AND folder_id=${folderId};
+      `;
+      await sql`
+        DELETE FROM emails WHERE id=${emailId};
+      `;
+    })
+    .catch((e) => {
+      console.error('Transaction failed: ', e);
+    });
 
-    // Delete the email from the email_folders table
-    await client.sql`
-      DELETE FROM email_folders WHERE email_id=${emailId} AND folder_id=${folderId};
-    `;
-
-    // Delete the email from the emails table
-    await client.sql`
-      DELETE FROM emails WHERE id=${emailId};
-    `;
-
-    await client.query('COMMIT');
-  } catch (e) {
-    await client.query('ROLLBACK');
-    console.error('Transaction failed: ', e);
-  } finally {
-    client.release();
-    revalidatePath('/', 'layout'); // Revalidate all data
-    redirect(`/f/${folderName}`);
-  }
+  revalidatePath('/', 'layout'); // Revalidate all data
+  redirect(`/f/${folderName}`);
 }

@@ -4,12 +4,12 @@ import {
   Button,
   ComboBox,
   Input,
-  Item,
+  ListBoxItem,
   Label,
   ListBox,
   Popover,
 } from 'react-aria-components';
-import type { ItemProps } from 'react-aria-components';
+import type { ListBoxItemProps } from 'react-aria-components';
 import { formatEmailString } from '@/app/db/utils';
 
 type UserEmail = {
@@ -46,11 +46,11 @@ export function EmailInputCombobox({
         <Popover className="max-h-60 w-[--trigger-width] overflow-auto rounded-md bg-gray-50 dark:bg-gray-950">
           <ListBox className="p-1" items={userEmails}>
             {(e) => (
-              <ListBoxItem key={e.email} textValue={e.email}>
+              <CustomItem key={e.email} textValue={e.email}>
                 <span className="truncate">
                   {formatEmailString(e, { includeFullEmail: true })}
                 </span>
-              </ListBoxItem>
+              </CustomItem>
             )}
           </ListBox>
         </Popover>
@@ -59,15 +59,15 @@ export function EmailInputCombobox({
   );
 }
 
-function ListBoxItem(props: ItemProps & { children: React.ReactNode }) {
+function CustomItem(props: ListBoxItemProps & { children: React.ReactNode }) {
   return (
-    <Item
+    <ListBoxItem
       {...props}
       className="group flex items-center gap-2 cursor-default select-none py-2 pl-2 pr-4 outline-none rounded text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-950 focus:bg-gray-900 dark:focus:bg-gray-50 focus:text-white dark:focus:text-black text-sm"
     >
       <span className="flex-1 flex items-center gap-3 truncate font-normal group-selected:font-medium">
         {props.children}
       </span>
-    </Item>
+    </ListBoxItem>
   );
 }

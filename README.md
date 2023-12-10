@@ -14,18 +14,18 @@ The first version of the UI was built with [v0](https://v0.dev/t/RPsRRQilTDp).
 ## Tech
 
 - [Next.js](https://nextjs.org/)
-- [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres)
+- [Postgres](https://vercel.com/docs/storage/vercel-postgres)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [React Aria Components](https://react-spectrum.adobe.com/react-aria/index.html)
 
 ## Known Issues
 
-- [ ] Forward / reply / search aren't hooked up yet
+- [ ] Forward / reply / aren't hooked up yet
 - [ ] Need to add a way to manage folders
 - [ ] Need to add a way to manage users
-- [ ] Fix to/from to pull sender/recipient everywhere
 - [ ] Error handling for form submissions
+- [x] Fix to/from to pull sender/recipient everywhere
 - [x] Add search
 
 ## Setup
@@ -40,6 +40,12 @@ Follow these steps to get started:
 2. Navigate to the `.env.local` tab in the quickstart section Postgres dashboard
 3. Copy the snippet and paste it into your `.env.local` file
 4. Run `pnpm run setup` to create the tables and insert sample data
+
+This example uses `postgres`, which makes it compatible with any Postgres database. You can use `DATABASE_URL` or `POSTGRES_URL` to connect to your database.
+
+```
+POSTGRES_URL="postgres://user:password@host:port/database"
+```
 
 ## Schema
 

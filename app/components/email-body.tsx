@@ -1,6 +1,8 @@
 'use client';
 
-export function EmailBody() {
+import { State } from '../db/actions';
+
+export function EmailBody({ state }: { state: State }) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (
       (e.ctrlKey || e.metaKey) &&
@@ -20,6 +22,17 @@ export function EmailBody() {
         required
         onKeyDown={handleKeyDown}
       />
+      {state.errors?.body ? (
+        <div
+          id="email-error"
+          aria-live="polite"
+          className="my-2 pl-3 text-sm text-red-500"
+        >
+          {state.errors.body.map((error: string) => (
+            <p key={error}>{error}</p>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

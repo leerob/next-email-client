@@ -11,8 +11,9 @@ import {
 } from 'react-aria-components';
 import type { ListBoxItemProps } from 'react-aria-components';
 import { formatEmailString } from '@/app/db/utils';
+import { State } from '../db/actions';
 
-type UserEmail = {
+export type UserEmail = {
   first_name: string;
   last_name: string;
   email: string;
@@ -24,8 +25,10 @@ type UserEmail = {
  */
 export function EmailInputCombobox({
   userEmails,
+  state,
 }: {
   userEmails: UserEmail[];
+  state: State;
 }) {
   return (
     <div className="relative flex flex-col justify-center space-y-2">
@@ -42,6 +45,17 @@ export function EmailInputCombobox({
           />
           <Button className="w-10">+</Button>
         </div>
+        {state.errors?.email ? (
+          <div
+            id="email-error"
+            aria-live="polite"
+            className="my-2 pl-3 text-sm text-red-500"
+          >
+            {state.errors.email.map((error: string) => (
+              <p key={error}>{error}</p>
+            ))}
+          </div>
+        ) : null}
 
         <Popover className="max-h-60 w-[--trigger-width] overflow-auto rounded-md bg-gray-50 dark:bg-gray-950">
           <ListBox className="p-1" items={userEmails}>

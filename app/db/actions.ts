@@ -6,22 +6,54 @@ import { z } from 'zod';
 import { toTitleCase } from './utils';
 import { redirect } from 'next/navigation';
 
+export type State = {
+  errors?: {
+    subject?: string[] | undefined;
+    email?: string[] | undefined;
+    body?: string[] | undefined;
+  }
+  message?: string | null;
+}
+
 let schema = z.object({
-  subject: z.string(),
-  email: z.string().email(),
-  body: z.string(),
+  subject: z.string({
+    invalid_type_error: 'Please enter a valid subject.'
+  }).min(3, {
+    message: 'Subject must be at least 3 characters long.'
+  }).max(100, {
+    message: 'Subject must be less than 100 characters long.'
+  }),
+  email: z.string().email({
+    message: 'Please enter a valid email address.'
+  }),
+  body: z.string({
+    invalid_type_error: 'Please enter a valid body.'
+  }).min(3, {
+    message: 'Body must be at least 3 characters long.'
+  }),
 });
 
 let sql = postgres(process.env.DATABASE_URL || process.env.POSTGRES_URL!, {
   ssl: 'allow',
 });
 
-export async function sendEmail(formData: FormData) {
-  let parsed = schema.parse({
+export async function sendEmail(prevState: State, formData: FormData) {
+  const validatedFields = schema.safeParse({
     subject: formData.get('subject'),
     email: formData.get('email'),
     body: formData.get('body'),
   });
+
+  // Return early if the form data is invalid otherwise continue
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Send Email.',
+    }
+  }
+
+  // Prepare data for insertion into the database
+  const { email, subject, body } = validatedFields.data;
 
   let senderId = 1; // Replace with actual senderId
   let newEmailId;
@@ -29,7 +61,7 @@ export async function sendEmail(formData: FormData) {
   await sql
     .begin(async (sql) => {
       let recipientResult = await sql`
-        SELECT id FROM users WHERE email=${parsed.email};
+        SELECT id FROM users WHERE email=${email};
       `;
 
       let recipientId;
@@ -37,14 +69,14 @@ export async function sendEmail(formData: FormData) {
         recipientId = recipientResult[0].id;
       } else {
         recipientResult = await sql`
-          INSERT INTO users (email) VALUES (${parsed.email}) RETURNING id;
+          INSERT INTO users (email) VALUES (${email}) RETURNING id;
         `;
         recipientId = recipientResult[0].id;
       }
 
       let emailResult = await sql`
         INSERT INTO emails (sender_id, recipient_id, subject, body, sent_date)
-        VALUES (${senderId}, ${recipientId}, ${parsed.subject}, ${parsed.body}, NOW())
+        VALUES (${senderId}, ${recipientId}, ${subject}, ${body}, NOW())
         RETURNING id;
       `;
       newEmailId = emailResult[0].id;

@@ -46,7 +46,7 @@ export function EmailInputCombobox({
         <Popover className="max-h-60 w-[--trigger-width] overflow-auto rounded-md bg-gray-50 dark:bg-gray-950">
           <ListBox className="p-1" items={userEmails}>
             {(e) => (
-              <CustomItem key={e.email} textValue={e.email}>
+              <CustomItem key={e.email} id={e.email} textValue={e.email}>
                 <span className="truncate">
                   {formatEmailString(e, { includeFullEmail: true })}
                 </span>

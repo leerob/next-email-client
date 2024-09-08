@@ -27,7 +27,8 @@ export async function sendEmail(formData: FormData) {
   await db.transaction(async (tx) => {
     let recipientId: number;
 
-    const existingUser = await tx.select({ id: users.id })
+    const existingUser = await tx
+      .select({ id: users.id })
       .from(users)
       .where(eq(users.email, parsed.email))
       .limit(1);
@@ -35,13 +36,15 @@ export async function sendEmail(formData: FormData) {
     if (existingUser.length > 0) {
       recipientId = existingUser[0].id;
     } else {
-      const [newUser] = await tx.insert(users)
+      const [newUser] = await tx
+        .insert(users)
         .values({ email: parsed.email })
         .returning({ id: users.id });
       recipientId = newUser.id;
     }
 
-    const [newEmail] = await tx.insert(emails)
+    const [newEmail] = await tx
+      .insert(emails)
       .values({
         senderId,
         recipientId,
@@ -53,12 +56,14 @@ export async function sendEmail(formData: FormData) {
 
     newEmailId = newEmail.id;
 
-    const [sentFolder] = await tx.select({ id: folders.id })
+    const [sentFolder] = await tx
+      .select({ id: folders.id })
       .from(folders)
       .where(eq(folders.name, 'Sent'))
       .limit(1);
 
-    await tx.insert(emailFolders)
+    await tx
+      .insert(emailFolders)
       .values({ emailId: newEmailId, folderId: sentFolder.id });
   });
 
@@ -74,19 +79,22 @@ export async function deleteEmail(folderName: string, emailId: string) {
   const originalFolderName = toTitleCase(decodeURIComponent(folderName));
 
   await db.transaction(async (tx) => {
-    const [folder] = await tx.select({ id: folders.id })
+    const [folder] = await tx
+      .select({ id: folders.id })
       .from(folders)
       .where(eq(folders.name, originalFolderName))
       .limit(1);
 
-    await tx.delete(emailFolders)
-      .where(and(
-        eq(emailFolders.emailId, parseInt(emailId)),
-        eq(emailFolders.folderId, folder.id)
-      ));
+    await tx
+      .delete(emailFolders)
+      .where(
+        and(
+          eq(emailFolders.emailId, parseInt(emailId)),
+          eq(emailFolders.folderId, folder.id),
+        ),
+      );
 
-    await tx.delete(emails)
-      .where(eq(emails.id, parseInt(emailId)));
+    await tx.delete(emails).where(eq(emails.id, parseInt(emailId)));
   });
 
   revalidatePath('/', 'layout'); // Revalidate all data

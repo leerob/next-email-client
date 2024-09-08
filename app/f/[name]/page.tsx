@@ -1,15 +1,12 @@
-import { getEmailInFolder } from '@/app/db/queries';
-import { formatEmailString } from '@/app/db/utils';
+import { getEmailInFolder } from '@/lib/db/queries';
+import { formatEmailString } from '@/lib/utils';
 import { Toolbar, ToolbarSkeleton } from '@/app/components/toolbar';
 import { EmailListColumn } from '@/app/components/email-list-column';
 import { FolderColumn } from '@/app/components/folder-column';
 import { EmailEmptyView } from '@/app/components/email-empty-view';
 import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
 
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/RPsRRQilTDp
- */
 export default function EmailPage({
   params,
   searchParams,
@@ -44,6 +41,10 @@ async function SelectedEmailColumn({
 
   const email = await getEmailInFolder(folderName, searchParams.id);
 
+  if (!email) {
+    return notFound();
+  }
+
   return (
     <div className="col-span-3 flex flex-col w-12/20">
       <Suspense fallback={<ToolbarSkeleton />}>
@@ -59,7 +60,7 @@ async function SelectedEmailColumn({
             {`To: ${folderName === 'sent' ? formatEmailString(email) : 'Me'}`}
           </p>
           <time className="text-xs text-gray-500 dark:text-gray-400">
-            {new Date(email.sent_date).toLocaleString()}
+            {email.sentDate?.toLocaleString()}
           </time>
         </div>
         <div>

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getFoldersWithEmailCount } from '@/app/db/queries';
+import { getFoldersWithEmailCount } from '@/lib/db/queries';
 import { FlagIcon } from '@/app/icons/flag';
 import { FolderIcon } from '@/app/icons/folder';
 import { InboxIcon } from '@/app/icons/inbox';

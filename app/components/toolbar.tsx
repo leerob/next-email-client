@@ -6,7 +6,7 @@ import { ArrowRightIcon } from '@/app/icons/arrow-right';
 import { EmailIcon } from '@/app/icons/email';
 import { TrashIcon } from '@/app/icons/trash';
 import Link from 'next/link';
-import { deleteEmail } from '@/app/db/actions';
+import { deleteEmail } from '@/lib/db/actions';
 import { Search } from './search';
 
 type Params = {

@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { formatEmailString } from '@/app/db/utils';
-import { getEmailsForFolder } from '@/app/db/queries';
+import { formatEmailString } from '@/lib/utils';
+import { getEmailsForFolder } from '@/lib/db/queries';
 
 export async function EmailListColumn({
   folderName,
@@ -36,7 +36,7 @@ export async function EmailListColumn({
                 </p>
               </div>
               <time className="text-xs text-gray-500 dark:text-gray-400 self-center flex justify-end">
-                {new Date(email.sent_date).toLocaleDateString()}
+                {email.sentDate?.toLocaleDateString()}
               </time>
             </li>
           </Link>

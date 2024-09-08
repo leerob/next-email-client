@@ -1,5 +1,7 @@
-export const nextConfig = {
-  redirects() {
+import type { NextConfig } from 'next'
+
+const nextConfig: NextConfig = {
+  async redirects() {
     return [
       {
         source: '/',
@@ -8,5 +10,6 @@ export const nextConfig = {
       },
     ];
   },
-};
+}
 
+export default nextConfig

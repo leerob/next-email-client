@@ -1,53 +1,58 @@
-import Link from 'next/link';
-import { getFoldersWithEmailCount } from '@/lib/db/queries';
-import { FlagIcon } from '@/app/icons/flag';
-import { FolderIcon } from '@/app/icons/folder';
-import { InboxIcon } from '@/app/icons/inbox';
-import { SentIcon } from '@/app/icons/sent';
+import Link from 'next/link'
+import { getFoldersWithEmailCount } from '@/lib/db/queries'
+import { Flag, Folder, Inbox, Send } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 
 export async function FolderColumn() {
-  const { specialFolders, otherFolders } = await getFoldersWithEmailCount();
+  const { specialFolders, otherFolders } = await getFoldersWithEmailCount()
 
   return (
-    <div className="border-r border-gray-200 dark:border-gray-800 overflow-y-auto p-2 space-y-2">
-      <ul>
+    <div className="border-r overflow-y-auto py-2 space-y-2 h-full">
+      <ul className="space-y-1">
         {specialFolders.map((folder, index) => (
-          <Link
-            key={index}
-            href={`/f/${encodeURIComponent(folder.name.toLowerCase())}`}
-          >
-            <li className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex items-center justify-between rounded-lg">
-              <div className="flex items-center space-x-3">
-                {folder.name === 'Inbox' ? (
-                  <InboxIcon />
-                ) : folder.name === 'Flagged' ? (
-                  <FlagIcon />
-                ) : (
-                  <SentIcon />
-                )}
-                <span className="text-sm">{folder.name}</span>
-              </div>
-              <span className="bg-gray-100 dark:bg-gray-800 rounded-full px-2 py-1 text-xs w-6 flex justify-center">
-                {folder.email_count}
-              </span>
-            </li>
-          </Link>
+          <li key={index} className="mr-2">
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              asChild
+            >
+              <Link href={`/f/${encodeURIComponent(folder.name.toLowerCase())}`}>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-3">
+                    {folder.name === 'Inbox' ? (
+                      <Inbox className="h-4 w-4" />
+                    ) : folder.name === 'Flagged' ? (
+                      <Flag className="h-4 w-4" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                    <span className="text-sm">{folder.name}</span>
+                  </div>
+                  {folder.email_count}
+                </div>
+              </Link>
+            </Button>
+          </li>
         ))}
       </ul>
-      <hr className="my-4 border-gray-200 dark:border-gray-800" />
-      <ul className="divide-y divide-gray-200 dark:divide-gray-800">
+      <Separator className="my-4" />
+      <ul className="space-y-1">
         {otherFolders.map((folder, index) => (
-          <Link
-            key={index}
-            href={`/f/${encodeURIComponent(folder.name.toLowerCase())}`}
-          >
-            <li className="px-3 py-4 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex items-center space-x-3 rounded-lg">
-              <FolderIcon />
-              <span className="text-sm">{folder.name}</span>
-            </li>
-          </Link>
+          <li key={index}>
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              asChild
+            >
+              <Link href={`/f/${encodeURIComponent(folder.name.toLowerCase())}`}>
+                <Folder className="mr-3 h-4 w-4" />
+                <span className="text-sm">{folder.name}</span>
+              </Link>
+            </Button>
+          </li>
         ))}
       </ul>
     </div>
-  );
+  )
 }

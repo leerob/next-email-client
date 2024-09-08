@@ -1,7 +1,7 @@
 import { EmailInputCombobox } from '@/app/components/email-combobox';
-import { sendEmail } from '@/app/db/actions';
-import { getAllEmailAddresses } from '@/app/db/queries';
-import { SendIcon } from '@/app/icons/send';
+import { sendEmail } from '@/lib/db/actions';
+import { getAllEmailAddresses } from '@/lib/db/queries';
+import { Send as SendIcon } from 'lucide-react'
 import { EmailBody } from './email-body';
 import { FolderColumn } from '@/app/components/folder-column';
 
@@ -24,7 +24,7 @@ async function Compose() {
           className="flex ml-auto hover:bg-gray-200 dark:hover:bg-gray-800 rounded px-3 py-2"
           type="submit"
         >
-          <SendIcon />
+          <SendIcon className='size-4' />
         </button>
       </div>
       <div className="p-1 space-y-1 flex-grow overflow-y-auto text-sm">

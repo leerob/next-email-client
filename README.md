@@ -30,14 +30,12 @@ Use the included setup script to create your `.env` file:
 pnpm db:setup
 ```
 
-Then, run the database migrations and seed the database with a default user and team:
+Then, run the database migrations and seed the database with emails and folders:
 
 ```bash
 pnpm db:migrate
 pnpm db:seed
 ```
-
-This will create some fake data for emails and users.
 
 Finally, run the Next.js development server:
 

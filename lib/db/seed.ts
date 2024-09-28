@@ -2,6 +2,12 @@ import { db } from './drizzle';
 import { users, emails, folders, userFolders, emailFolders } from './schema';
 
 async function seed() {
+  console.log('Starting seed process...');
+  await seedEmails();
+  console.log('Seed process completed successfully.');
+}
+
+async function seedEmails() {
   await db.insert(users).values([
     { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
     { firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
@@ -99,4 +105,12 @@ async function seed() {
   ]);
 }
 
-seed().catch(console.error);
+seed()
+  .catch((error) => {
+    console.error('Seed process failed:', error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    console.log('Seed process finished. Exiting...');
+    process.exit(0);
+  });

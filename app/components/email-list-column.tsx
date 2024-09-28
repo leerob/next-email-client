@@ -4,16 +4,16 @@ import { getEmailsForFolder } from '@/lib/db/queries';
 
 export async function EmailListColumn({
   folderName,
-  searchParams,
+  query,
 }: {
   folderName: string;
-  searchParams: { q?: string; id?: string };
+  query: string | undefined;
 }) {
-  const emails = await getEmailsForFolder(folderName, searchParams.q);
+  const emails = await getEmailsForFolder(folderName, query);
 
   function createUrl(id: number) {
     const baseUrl = `/f/${folderName.toLowerCase()}`;
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(query);
     params.set('id', id.toString());
     return `${baseUrl}?${params.toString()}`;
   }

@@ -7,22 +7,23 @@ import { EmailEmptyView } from '@/app/components/email-empty-view';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
-export default function EmailPage({
+export default async function EmailPage({
   params,
   searchParams,
 }: {
-  params: { name: string; id: string };
-  searchParams: { q?: string; id?: string };
+  params: Promise<{ name: string }>;
+  searchParams: Promise<{ q?: string; id?: string }>;
 }) {
+  let id = (await searchParams).id;
+  let q = (await searchParams).q;
+  let name = (await params).name;
+
   return (
     <div className="grid grid-cols-6 gap-2 h-screen p-2">
       <FolderColumn />
-      <EmailListColumn folderName={params.name} searchParams={searchParams} />
+      <EmailListColumn folderName={name} query={q} />
       <Suspense fallback={<EmailEmptyView />}>
-        <SelectedEmailColumn
-          folderName={params.name}
-          searchParams={searchParams}
-        />
+        <SelectedEmailColumn folderName={name} id={id} />
       </Suspense>
     </div>
   );
@@ -30,16 +31,16 @@ export default function EmailPage({
 
 async function SelectedEmailColumn({
   folderName,
-  searchParams,
+  id,
 }: {
   folderName: string;
-  searchParams: { q?: string; id?: string };
+  id: string | undefined;
 }) {
-  if (!searchParams.id) {
+  if (!id) {
     return <EmailEmptyView />;
   }
 
-  const email = await getEmailInFolder(folderName, searchParams.id);
+  const email = await getEmailInFolder(folderName, id);
 
   if (!email) {
     return notFound();

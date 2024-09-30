@@ -8,6 +8,12 @@ import { LeftSidebar } from '@/app/components/left-sidebar';
 import { sendEmailAction } from '@/lib/db/actions';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 function EmailBody({ defaultValue = '' }: { defaultValue?: string }) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -45,10 +51,11 @@ export default function ComposePage() {
     },
   });
 
+  const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
+
   return (
     <div className="flex-grow h-full flex">
       <LeftSidebar />
-
       <div className="flex-grow p-6">
         <h1 className="text-2xl font-semibold mb-6">New Message</h1>
         {state.error && (
@@ -85,43 +92,76 @@ export default function ComposePage() {
           </div>
           <EmailBody defaultValue={state.previous.body?.toString()} />
           <div className="flex items-center justify-between">
-            <div className="flex space-x-2">
-              <button
-                type="submit"
-                className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                Send
-              </button>
-              <button
-                disabled
-                type="button"
-                className="cursor-not-allowed px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                Send later
-              </button>
-              <button
-                disabled
-                type="button"
-                className="cursor-not-allowed px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                Remind me
-              </button>
-            </div>
-            <div className="flex space-x-3">
-              <button
-                disabled
-                type="button"
-                className="cursor-not-allowed text-gray-400 hover:text-gray-600"
-              >
-                <Paperclip size={20} />
-              </button>
-              <Link
-                href={`/f/${name}`}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <Trash2 size={20} />
-              </Link>
-            </div>
+            <TooltipProvider>
+              <div className="flex space-x-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="submit"
+                      disabled={isProduction}
+                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Send
+                    </button>
+                  </TooltipTrigger>
+                  {isProduction && (
+                    <TooltipContent>
+                      <p>Sending emails is disabled in production</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      disabled
+                      type="button"
+                      className="cursor-not-allowed px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                    >
+                      Send later
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>This feature is not yet implemented</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      disabled
+                      type="button"
+                      className="cursor-not-allowed px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                    >
+                      Remind me
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>This feature is not yet implemented</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="flex space-x-3">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      disabled
+                      type="button"
+                      className="cursor-not-allowed text-gray-400 hover:text-gray-600"
+                    >
+                      <Paperclip size={20} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Attachments are not yet implemented</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Link
+                  href={`/f/${name}`}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <Trash2 size={20} />
+                </Link>
+              </div>
+            </TooltipProvider>
           </div>
         </form>
       </div>

@@ -14,6 +14,11 @@ const sendEmailSchema = z.object({
 });
 
 export async function sendEmailAction(_: any, formData: FormData) {
+  // Let's only handle this on local for now
+  if (process.env.VERCEL_ENV === 'production') {
+    return;
+  }
+
   let newThread;
   let rawFormData = {
     subject: formData.get('subject'),
@@ -84,6 +89,11 @@ export async function sendEmailAction(_: any, formData: FormData) {
 }
 
 export async function moveThreadToDone(_: any, formData: FormData) {
+  // Let's only handle this on local for now
+  if (process.env.VERCEL_ENV === 'production') {
+    return;
+  }
+
   let threadId = formData.get('threadId');
 
   if (!threadId || typeof threadId !== 'string') {
@@ -120,6 +130,11 @@ export async function moveThreadToDone(_: any, formData: FormData) {
 }
 
 export async function moveThreadToTrash(_: any, formData: FormData) {
+  // Let's only handle this on local for now
+  if (process.env.VERCEL_ENV === 'production') {
+    return;
+  }
+
   let threadId = formData.get('threadId');
 
   if (!threadId || typeof threadId !== 'string') {

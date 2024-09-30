@@ -59,40 +59,42 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
           const latestEmail = thread.emails[0];
 
           return (
-            <div
+            <Link
               key={thread.id}
-              className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100`}
-              onMouseEnter={() => setHoveredThread(thread.id)}
-              onMouseLeave={() => setHoveredThread(null)}
+              href={`/f/${folderName.toLowerCase()}/${thread.id}`}
+              className="block hover:bg-gray-50 cursor-pointer border-b border-gray-100"
             >
-              <Link
-                href={`/f/${folderName.toLowerCase()}/${thread.id}`}
-                className="flex-grow flex items-center overflow-hidden"
+              <div
+                className="flex items-center"
+                onMouseEnter={() => setHoveredThread(thread.id)}
+                onMouseLeave={() => setHoveredThread(null)}
               >
-                <div className="w-[200px] flex-shrink-0 mr-4">
-                  <span className="font-medium truncate">
-                    {formatEmailString(latestEmail.sender)}
-                  </span>
+                <div className="flex-grow flex items-center overflow-hidden p-4">
+                  <div className="w-[200px] flex-shrink-0 mr-4">
+                    <span className="font-medium truncate">
+                      {formatEmailString(latestEmail.sender)}
+                    </span>
+                  </div>
+                  <div className="flex-grow flex items-center overflow-hidden">
+                    <span className="font-medium truncate min-w-[175px] max-w-[400px] mr-2">
+                      {thread.subject}
+                    </span>
+                    <span className="text-gray-600 truncate">
+                      {latestEmail.body}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex-grow flex items-center overflow-hidden">
-                  <span className="font-medium truncate min-w-[175px] max-w-[400px] mr-2">
-                    {thread.subject}
-                  </span>
-                  <span className="text-gray-600 truncate">
-                    {latestEmail.body}
-                  </span>
+                <div className="flex items-center justify-end flex-shrink-0 w-40 p-4">
+                  {hoveredThread === thread.id ? (
+                    <ThreadActions threadId={thread.id} />
+                  ) : (
+                    <span className="text-sm text-gray-500">
+                      {new Date(thread.lastActivityDate!).toLocaleDateString()}
+                    </span>
+                  )}
                 </div>
-              </Link>
-              <div className="flex items-center justify-end flex-shrink-0 w-40 ml-4">
-                {hoveredThread === thread.id ? (
-                  <ThreadActions threadId={thread.id} />
-                ) : (
-                  <span className="text-sm text-gray-500">
-                    {new Date(thread.lastActivityDate!).toLocaleDateString()}
-                  </span>
-                )}
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

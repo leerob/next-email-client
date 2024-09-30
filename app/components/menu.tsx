@@ -10,7 +10,10 @@ export function NavMenu() {
           <Menu size={20} />
         </button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+      <SheetContent
+        side="left"
+        className="w-[300px] sm:w-[400px] transition-transform duration-200 ease-out data-[state=open]:duration-200 data-[state=open]:ease-out"
+      >
         <nav className="flex flex-col space-y-4 mt-8">
           <Link
             href="/f/inbox"

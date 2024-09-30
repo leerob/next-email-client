@@ -1,7 +1,7 @@
 import { LeftSidebar } from '@/app/components/left-sidebar';
 import { getEmailsForThread } from '@/lib/db/queries';
-import { Check, Clock, Archive } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { ThreadActions } from '@/app/components/thread-actions';
 
 export default async function EmailPage({
   params,
@@ -28,15 +28,7 @@ export default async function EmailPage({
               <button className="text-gray-700 text-sm font-medium mr-2">
                 Share
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors">
-                <Check size={16} className="text-gray-600" />
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors">
-                <Clock size={16} className="text-gray-600" />
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors">
-                <Archive size={16} className="text-gray-600" />
-              </button>
+              <ThreadActions threadId={thread.id} />
             </div>
           </div>
           <div className="space-y-6">

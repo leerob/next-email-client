@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { PenSquare, Search, Clock, Repeat, Check } from 'lucide-react';
+import { PenSquare, Search } from 'lucide-react';
 import { NavMenu } from './menu';
 import { formatEmailString } from '@/lib/utils';
 import { emails, users } from '@/lib/db/schema';
+import { ThreadActions } from '@/app/components/thread-actions';
 
 type Email = Omit<typeof emails.$inferSelect, 'threadId'> & {
   sender: Pick<User, 'id' | 'firstName' | 'lastName' | 'email'>;
@@ -58,51 +59,40 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
           const latestEmail = thread.emails[0];
 
           return (
-            <Link
+            <div
               key={thread.id}
-              href={`/f/${folderName.toLowerCase()}/${thread.id}`}
+              className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100`}
+              onMouseEnter={() => setHoveredThread(thread.id)}
+              onMouseLeave={() => setHoveredThread(null)}
             >
-              <div
-                className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100`}
-                onMouseEnter={() => setHoveredThread(thread.id)}
-                onMouseLeave={() => setHoveredThread(null)}
+              <Link
+                href={`/f/${folderName.toLowerCase()}/${thread.id}`}
+                className="flex-grow flex items-center overflow-hidden"
               >
+                <div className="w-[200px] flex-shrink-0 mr-4">
+                  <span className="font-medium truncate">
+                    {formatEmailString(latestEmail.sender)}
+                  </span>
+                </div>
                 <div className="flex-grow flex items-center overflow-hidden">
-                  <div className="w-[200px] flex-shrink-0 mr-4">
-                    <span className="font-medium truncate">
-                      {formatEmailString(latestEmail.sender)}
-                    </span>
-                  </div>
-                  <div className="flex-grow flex items-center overflow-hidden">
-                    <span className="font-medium truncate min-w-[175px] max-w-[400px] mr-2">
-                      {thread.subject}
-                    </span>
-                    <span className="text-gray-600 truncate">
-                      {latestEmail.body}
-                    </span>
-                  </div>
+                  <span className="font-medium truncate min-w-[175px] max-w-[400px] mr-2">
+                    {thread.subject}
+                  </span>
+                  <span className="text-gray-600 truncate">
+                    {latestEmail.body}
+                  </span>
                 </div>
-                <div className="flex items-center justify-end flex-shrink-0 w-40 ml-4">
-                  {hoveredThread === thread.id ? (
-                    <div className="flex items-center space-x-1">
-                      <button className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors">
-                        <Check size={14} className="text-gray-600" />
-                      </button>
-                      <button className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors">
-                        <Clock size={14} className="text-gray-600" />
-                      </button>
-                      <button className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors">
-                        <Repeat size={14} className="text-gray-600" />
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-500">
-                      {new Date(thread.lastActivityDate!).toLocaleDateString()}
-                    </span>
-                  )}
-                </div>
+              </Link>
+              <div className="flex items-center justify-end flex-shrink-0 w-40 ml-4">
+                {hoveredThread === thread.id ? (
+                  <ThreadActions threadId={thread.id} />
+                ) : (
+                  <span className="text-sm text-gray-500">
+                    {new Date(thread.lastActivityDate!).toLocaleDateString()}
+                  </span>
+                )}
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>

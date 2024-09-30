@@ -2,11 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { toTitleCase } from 'lib/utils';
 import { redirect } from 'next/navigation';
 import { db } from './drizzle';
 import { users, emails, folders, threads, threadFolders } from './schema';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 const sendEmailSchema = z.object({
   subject: z.string().min(1, 'Subject is required'),
@@ -84,28 +83,74 @@ export async function sendEmailAction(_: any, formData: FormData) {
   redirect(`/f/sent/${newThread.id}`);
 }
 
-// export async function deleteEmail(folderName: string, emailId: string) {
-//   const originalFolderName = toTitleCase(decodeURIComponent(folderName));
-//
-//   await db.transaction(async (tx) => {
-//     const [folder] = await tx
-//       .select({ id: folders.id })
-//       .from(folders)
-//       .where(eq(folders.name, originalFolderName))
-//       .limit(1);
-//
-//     await tx
-//       .delete(emailFolders)
-//       .where(
-//         and(
-//           eq(emailFolders.emailId, parseInt(emailId)),
-//           eq(emailFolders.folderId, folder.id),
-//         ),
-//       );
-//
-//     await tx.delete(emails).where(eq(emails.id, parseInt(emailId)));
-//   });
-//
-//   revalidatePath('/', 'layout'); // Revalidate all data
-//   redirect(`/f/${folderName}`);
-// }
+export async function moveThreadToDone(_: any, formData: FormData) {
+  let threadId = formData.get('threadId');
+
+  if (!threadId || typeof threadId !== 'string') {
+    return { error: 'Invalid thread ID', success: false };
+  }
+
+  try {
+    let doneFolder = await db.query.folders.findFirst({
+      where: eq(folders.name, 'Archive'),
+    });
+
+    if (!doneFolder) {
+      return { error: 'Done folder not found', success: false };
+    }
+
+    let parsedThreadId = parseInt(threadId, 10);
+
+    await db
+      .delete(threadFolders)
+      .where(eq(threadFolders.threadId, parsedThreadId));
+
+    await db.insert(threadFolders).values({
+      threadId: parsedThreadId,
+      folderId: doneFolder.id,
+    });
+
+    revalidatePath('/f/[name]');
+    revalidatePath('/f/[name]/[id]');
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Failed to move thread to Done:', error);
+    return { success: false, error: 'Failed to move thread to Done' };
+  }
+}
+
+export async function moveThreadToTrash(_: any, formData: FormData) {
+  let threadId = formData.get('threadId');
+
+  if (!threadId || typeof threadId !== 'string') {
+    return { error: 'Invalid thread ID', success: false };
+  }
+
+  try {
+    let trashFolder = await db.query.folders.findFirst({
+      where: eq(folders.name, 'Trash'),
+    });
+
+    if (!trashFolder) {
+      return { error: 'Trash folder not found', success: false };
+    }
+
+    let parsedThreadId = parseInt(threadId, 10);
+
+    await db
+      .delete(threadFolders)
+      .where(eq(threadFolders.threadId, parsedThreadId));
+
+    await db.insert(threadFolders).values({
+      threadId: parsedThreadId,
+      folderId: trashFolder.id,
+    });
+
+    revalidatePath('/f/[name]');
+    revalidatePath('/f/[name]/[id]');
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Failed to move thread to Trash:', error);
+    return { success: false, error: 'Failed to move thread to Trash' };
+  }
+}

@@ -55,8 +55,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 - ✅ Seed and setup script
 - ✅ Highlight searched text
 - ✅ Hook up compose view
-- Delete emails (move to trash)
-- Finish nav menu
+- ✅ Delete emails (move to trash)
 - Make side profile dynamic
 - Support Markdown?
 - Make up/down arrows work for threads

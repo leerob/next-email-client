@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { PenSquare, Search } from 'lucide-react';
 import { NavMenu } from './menu';
@@ -28,12 +28,31 @@ interface ThreadListProps {
 
 export function ThreadList({ folderName, threads }: ThreadListProps) {
   const [hoveredThread, setHoveredThread] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const handleActionClick = (e: React.MouseEvent) => {
-    // The entire row is a link, but don't navigate
-    // when clicking on the thread actions
-    e.preventDefault();
-    e.stopPropagation();
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.matchMedia('(hover: none)').matches);
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkIsMobile);
+    };
+  }, []);
+
+  const handleMouseEnter = (threadId: number) => {
+    if (!isMobile) {
+      setHoveredThread(threadId);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setHoveredThread(null);
+    }
   };
 
   return (
@@ -73,8 +92,8 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
             >
               <div
                 className="flex items-center"
-                onMouseEnter={() => setHoveredThread(thread.id)}
-                onMouseLeave={() => setHoveredThread(null)}
+                onMouseEnter={() => handleMouseEnter(thread.id)}
+                onMouseLeave={handleMouseLeave}
               >
                 <div className="flex-grow flex items-center overflow-hidden p-4">
                   <div className="w-[200px] flex-shrink-0 mr-4">
@@ -91,11 +110,8 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
                     </span>
                   </div>
                 </div>
-                <div
-                  className="flex items-center justify-end flex-shrink-0 w-40 p-4"
-                  onClick={handleActionClick}
-                >
-                  {hoveredThread === thread.id ? (
+                <div className="flex items-center justify-end flex-shrink-0 w-40 p-4">
+                  {!isMobile && hoveredThread === thread.id ? (
                     <ThreadActions threadId={thread.id} />
                   ) : (
                     <span className="text-sm text-gray-500">

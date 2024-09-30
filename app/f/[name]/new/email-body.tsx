@@ -15,8 +15,8 @@ export function EmailBody() {
     <div>
       <textarea
         name="body"
-        rows={20}
-        className="border-none bg-white dark:bg-gray-950 text-black dark:text-white px-3 py-2 focus:outline-none w-full mt-2"
+        placeholder="Tip: Hit Shift ⏎ to send"
+        className="w-full h-[calc(100vh-300px)] resize-none border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         required
         onKeyDown={handleKeyDown}
       />

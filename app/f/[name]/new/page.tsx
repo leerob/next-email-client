@@ -1,64 +1,81 @@
-import { EmailInputCombobox } from '@/app/components/email-combobox';
-import { sendEmail } from '@/lib/db/actions';
-import { getAllEmailAddresses } from '@/lib/db/queries';
-import { Send as SendIcon } from 'lucide-react'
+import { ChevronDown, Paperclip, Trash2 } from 'lucide-react';
 import { EmailBody } from './email-body';
-import { FolderColumn } from '@/app/components/folder-column';
+import { LeftSidebar } from '@/app/components/left-sidebar';
 
-export default function Page() {
+export default function ComposePage() {
   return (
-    <div className="grid grid-cols-6 gap-2 h-screen p-2">
-      <FolderColumn />
-      <Compose />
+    <div className="flex-grow h-full flex">
+      <LeftSidebar />
+
+      {/* Compose View */}
+      <div className="flex-grow p-6">
+        <h1 className="text-2xl font-semibold mb-6">New Message</h1>
+        <form className="space-y-4">
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+              To
+            </span>
+            <input
+              type="text"
+              className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder=""
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <ChevronDown size={20} />
+            </button>
+          </div>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+              Subject
+            </span>
+            <input
+              type="text"
+              className="w-full pl-20 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder=""
+            />
+          </div>
+          <EmailBody />
+          <div className="flex items-center justify-between">
+            <div className="flex space-x-2">
+              <button
+                type="submit"
+                className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                Send
+              </button>
+              <button
+                type="button"
+                className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                Send later
+              </button>
+              <button
+                type="button"
+                className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                Remind me
+              </button>
+            </div>
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <Paperclip size={20} />
+              </button>
+              <button
+                type="button"
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <Trash2 size={20} />
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
-  );
-}
-
-async function Compose() {
-  const userEmails = await getAllEmailAddresses();
-
-  return (
-    <form className="col-span-5 flex flex-col w-12/20" action={sendEmail}>
-      <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 p-2 sticky top-0 h-[60px]">
-        <button
-          className="flex ml-auto hover:bg-gray-200 dark:hover:bg-gray-800 rounded px-3 py-2"
-          type="submit"
-        >
-          <SendIcon className='size-4' />
-        </button>
-      </div>
-      <div className="p-1 space-y-1 flex-grow overflow-y-auto text-sm">
-        <div className="relative flex flex-col justify-center space-y-2">
-          <EmailInputCombobox userEmails={userEmails} />
-        </div>
-        <hr className="border-t border-gray-200 dark:border-gray-800" />
-        <div className="relative flex flex-col space-y-2">
-          <label className="absolute left-3 top-4 text-gray-500 dark:text-gray-400">
-            From:
-          </label>
-          <p className="pl-14 border-none bg-white dark:bg-gray-950 text-black dark:text-white px-3 py-2 focus:outline-none">
-            your@email.com
-          </p>
-        </div>
-        <hr className="border-t border-gray-200 dark:border-gray-800" />
-        <div className="relative flex flex-col space-y-2">
-          <label
-            className="absolute left-3 top-4 text-gray-500 dark:text-gray-400"
-            htmlFor="subject"
-          >
-            Subject:
-          </label>
-          <input
-            className="pl-[72px] border-none bg-white dark:bg-gray-950 text-black dark:text-white px-3 py-2 focus:outline-none"
-            id="subject"
-            type="text"
-            name="subject"
-            required
-          />
-        </div>
-        <hr className="border-t border-gray-200 dark:border-gray-800" />
-        <EmailBody />
-      </div>
-    </form>
   );
 }

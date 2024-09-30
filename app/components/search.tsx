@@ -1,29 +1,37 @@
-'use client'
+'use client';
 
-import { Search as SearchIcon } from 'lucide-react'
-import { usePathname, useSearchParams } from 'next/navigation'
-import { Input } from "@/components/ui/input"
-import Form from "next/form"
+import { useSearchParams } from 'next/navigation';
+import Form from 'next/form';
+import { useEffect, useRef } from 'react';
 
 export function Search() {
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
+  let inputRef = useRef<HTMLInputElement>(null);
+
+  let searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.setSelectionRange(
+        inputRef.current.value.length,
+        inputRef.current.value.length
+      );
+    }
+  }, []);
 
   return (
-    <Form action={pathname}>
-      <div className="relative flex flex-1 flex-shrink-0">
-        <label htmlFor="search" className="sr-only">
-          Search
-        </label>
-        <Input
-          id="search"
-          name="q"
-          className="pl-10"
-          placeholder="Search..."
-          defaultValue={searchParams.get('q')?.toString()}
-        />
-        <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-      </div>
+    <Form action="/search" className="w-full">
+      <label htmlFor="search" className="sr-only">
+        Search
+      </label>
+      <input
+        ref={inputRef}
+        id="search"
+        name="q"
+        className="w-full py-2 bg-transparent focus:outline-none"
+        placeholder="Search"
+        defaultValue={searchParams.get('q')?.toString()}
+      />
     </Form>
-  )
+  );
 }

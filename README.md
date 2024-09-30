@@ -44,3 +44,22 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the app in action.
+
+## Implemented
+
+- ✅ Search for emails
+- ✅ Profile sidebar with user information
+- ✅ View all threads
+- ✅ View all emails in a thread
+- ✅ Compose view
+- ✅ Seed and setup script
+- Delete emails (move to trash)
+- Hook up compose view
+- Highlight searched text
+- Finish nav menu
+- Make side profile dynamic
+- Support Markdown?
+- Make up/down arrows work for threads
+- Global keyboard shortcuts
+- Better date formatting
+- Dark mode styles

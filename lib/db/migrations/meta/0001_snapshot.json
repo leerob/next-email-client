@@ -1,6 +1,6 @@
 {
-  "id": "8497ddff-d0e4-4209-acc5-1fb49034387d",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "fbac7231-f1aa-4888-a06e-5c382f790659",
+  "prevId": "8497ddff-d0e4-4209-acc5-1fb49034387d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -377,15 +377,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "facebook": {
-          "name": "facebook",
+        "github": {
+          "name": "github",
           "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text",
           "primaryKey": false,
           "notNull": false
         },

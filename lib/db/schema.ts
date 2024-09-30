@@ -6,6 +6,7 @@ import {
   timestamp,
   integer,
   uniqueIndex,
+  index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -16,22 +17,47 @@ export const users = pgTable(
     firstName: varchar('first_name', { length: 50 }),
     lastName: varchar('last_name', { length: 50 }),
     email: varchar('email', { length: 255 }).notNull(),
+    jobTitle: varchar('job_title', { length: 100 }),
+    company: varchar('company', { length: 100 }),
+    location: varchar('location', { length: 100 }),
+    twitter: varchar('twitter', { length: 100 }),
+    linkedin: varchar('linkedin', { length: 100 }),
+    github: varchar('github', { length: 100 }),
+    avatarUrl: varchar('avatar_url', { length: 255 }),
   },
   (table) => {
     return {
       emailIndex: uniqueIndex('email_idx').on(table.email),
     };
-  },
+  }
 );
 
-export const emails = pgTable('emails', {
+export const threads = pgTable('threads', {
   id: serial('id').primaryKey(),
-  senderId: integer('sender_id').references(() => users.id),
-  recipientId: integer('recipient_id').references(() => users.id),
   subject: varchar('subject', { length: 255 }),
-  body: text('body'),
-  sentDate: timestamp('sent_date').defaultNow(),
+  lastActivityDate: timestamp('last_activity_date').defaultNow(),
 });
+
+export const emails = pgTable(
+  'emails',
+  {
+    id: serial('id').primaryKey(),
+    threadId: integer('thread_id').references(() => threads.id),
+    senderId: integer('sender_id').references(() => users.id),
+    recipientId: integer('recipient_id').references(() => users.id),
+    subject: varchar('subject', { length: 255 }),
+    body: text('body'),
+    sentDate: timestamp('sent_date').defaultNow(),
+  },
+  (table) => {
+    return {
+      threadIdIndex: index('thread_id_idx').on(table.threadId),
+      senderIdIndex: index('sender_id_idx').on(table.senderId),
+      recipientIdIndex: index('recipient_id_idx').on(table.recipientId),
+      sentDateIndex: index('sent_date_idx').on(table.sentDate),
+    };
+  }
+);
 
 export const folders = pgTable('folders', {
   id: serial('id').primaryKey(),
@@ -44,9 +70,9 @@ export const userFolders = pgTable('user_folders', {
   folderId: integer('folder_id').references(() => folders.id),
 });
 
-export const emailFolders = pgTable('email_folders', {
+export const threadFolders = pgTable('thread_folders', {
   id: serial('id').primaryKey(),
-  emailId: integer('email_id').references(() => emails.id),
+  threadId: integer('thread_id').references(() => threads.id),
   folderId: integer('folder_id').references(() => folders.id),
 });
 
@@ -56,7 +82,16 @@ export const usersRelations = relations(users, ({ many }) => ({
   userFolders: many(userFolders),
 }));
 
-export const emailsRelations = relations(emails, ({ one, many }) => ({
+export const threadsRelations = relations(threads, ({ many }) => ({
+  emails: many(emails),
+  threadFolders: many(threadFolders),
+}));
+
+export const emailsRelations = relations(emails, ({ one }) => ({
+  thread: one(threads, {
+    fields: [emails.threadId],
+    references: [threads.id],
+  }),
   sender: one(users, {
     fields: [emails.senderId],
     references: [users.id],
@@ -67,12 +102,11 @@ export const emailsRelations = relations(emails, ({ one, many }) => ({
     references: [users.id],
     relationName: 'recipient',
   }),
-  emailFolders: many(emailFolders),
 }));
 
 export const foldersRelations = relations(folders, ({ many }) => ({
   userFolders: many(userFolders),
-  emailFolders: many(emailFolders),
+  threadFolders: many(threadFolders),
 }));
 
 export const userFoldersRelations = relations(userFolders, ({ one }) => ({
@@ -83,13 +117,13 @@ export const userFoldersRelations = relations(userFolders, ({ one }) => ({
   }),
 }));
 
-export const emailFoldersRelations = relations(emailFolders, ({ one }) => ({
-  email: one(emails, {
-    fields: [emailFolders.emailId],
-    references: [emails.id],
+export const threadFoldersRelations = relations(threadFolders, ({ one }) => ({
+  thread: one(threads, {
+    fields: [threadFolders.threadId],
+    references: [threads.id],
   }),
   folder: one(folders, {
-    fields: [emailFolders.folderId],
+    fields: [threadFolders.folderId],
     references: [folders.id],
   }),
 }));

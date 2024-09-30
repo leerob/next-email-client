@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
-import { GeistSans } from 'geist/font/sans';
+import { Inter } from 'next/font/google';
 import './globals.css';
+import { RightSidebar } from './components/right-sidebar';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Next.js Mail',
@@ -13,11 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className="bg-white dark:bg-gray-950 text-black dark:text-white"
-    >
-      <body className={GeistSans.variable}>{children}</body>
+    <html lang="en" className={`bg-white text-gray-800 ${inter.className}`}>
+      <body className="flex h-screen">
+        <main className="flex-grow overflow-hidden">{children}</main>
+        <RightSidebar userId={1} />
+      </body>
     </html>
   );
 }

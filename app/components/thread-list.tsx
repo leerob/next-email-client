@@ -29,6 +29,13 @@ interface ThreadListProps {
 export function ThreadList({ folderName, threads }: ThreadListProps) {
   const [hoveredThread, setHoveredThread] = useState<number | null>(null);
 
+  const handleActionClick = (e: React.MouseEvent) => {
+    // The entire row is a link, but don't navigate
+    // when clicking on the thread actions
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <div className="flex-grow border-r border-gray-200 overflow-hidden">
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -84,7 +91,10 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-end flex-shrink-0 w-40 p-4">
+                <div
+                  className="flex items-center justify-end flex-shrink-0 w-40 p-4"
+                  onClick={handleActionClick}
+                >
                   {hoveredThread === thread.id ? (
                     <ThreadActions threadId={thread.id} />
                   ) : (

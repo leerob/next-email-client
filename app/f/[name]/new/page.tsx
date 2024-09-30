@@ -91,7 +91,7 @@ export default function ComposePage() {
             />
           </div>
           <EmailBody defaultValue={state.previous.body?.toString()} />
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-center justify-between">
             <TooltipProvider>
               <div className="flex space-x-2">
                 <Tooltip>
@@ -139,7 +139,7 @@ export default function ComposePage() {
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="flex space-x-3">
+              <div className="flex mt-4 sm:mt-0 ml-auto space-x-3">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button

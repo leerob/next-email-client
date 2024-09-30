@@ -18,13 +18,13 @@ export default async function EmailPage({
   return (
     <div className="flex-grow h-full flex">
       <LeftSidebar />
-      <div className="flex-grow p-6 overflow-auto">
+      <div className="flex-grow p-2 sm:p-6 overflow-auto">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-start justify-between mb-6 mx-6">
-            <h1 className="text-2xl font-semibold pr-4 flex-grow max-w-2xl">
+          <div className="flex flex-col sm:flex-row items-start justify-between mb-6 mx-6">
+            <h1 className="text-2xl font-semibold pr-4 flex-grow max-w-2xl mt-4 sm:mt-0">
               {thread.subject}
             </h1>
-            <div className="flex items-center space-x-1 flex-shrink-0">
+            <div className="flex items-center space-x-1 flex-shrink-0 mt-2 sm:mt-0">
               <button className="text-gray-700 text-sm font-medium mr-2">
                 Share
               </button>
@@ -34,7 +34,7 @@ export default async function EmailPage({
           <div className="space-y-6">
             {thread.emails.map((email) => (
               <div key={email.id} className="bg-gray-50 py-4 px-6 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2">
                   <div className="font-semibold">
                     {email.sender.firstName} {email.sender.lastName} to{' '}
                     {email.recipientId === thread.emails[0].sender.id

@@ -61,5 +61,8 @@ const config: Config = {
     require('tailwindcss-react-aria-components'),
     require('tailwindcss-animate'),
   ],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
 };
 export default config;

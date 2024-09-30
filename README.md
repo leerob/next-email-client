@@ -54,8 +54,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 - ✅ Compose view
 - ✅ Seed and setup script
 - ✅ Highlight searched text
+- ✅ Hook up compose view
 - Delete emails (move to trash)
-- Hook up compose view
 - Finish nav menu
 - Make side profile dynamic
 - Support Markdown?

@@ -14,17 +14,19 @@ const sendEmailSchema = z.object({
 });
 
 export async function sendEmailAction(_: any, formData: FormData) {
-  // Let's only handle this on local for now
-  if (process.env.VERCEL_ENV === 'production') {
-    return;
-  }
-
   let newThread;
   let rawFormData = {
     subject: formData.get('subject'),
     body: formData.get('body'),
     recipientEmail: formData.get('recipientEmail'),
   };
+
+  if (process.env.VERCEL_ENV === 'production') {
+    return {
+      error: 'Only works on localhost for now',
+      previous: rawFormData,
+    };
+  }
 
   try {
     let validatedFields = sendEmailSchema.parse({
@@ -89,9 +91,10 @@ export async function sendEmailAction(_: any, formData: FormData) {
 }
 
 export async function moveThreadToDone(_: any, formData: FormData) {
-  // Let's only handle this on local for now
   if (process.env.VERCEL_ENV === 'production') {
-    return;
+    return {
+      error: 'Only works on localhost for now',
+    };
   }
 
   let threadId = formData.get('threadId');
@@ -130,9 +133,10 @@ export async function moveThreadToDone(_: any, formData: FormData) {
 }
 
 export async function moveThreadToTrash(_: any, formData: FormData) {
-  // Let's only handle this on local for now
   if (process.env.VERCEL_ENV === 'production') {
-    return;
+    return {
+      error: 'Only works on localhost for now',
+    };
   }
 
   let threadId = formData.get('threadId');

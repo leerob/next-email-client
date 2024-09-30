@@ -7,6 +7,8 @@ This is an email client template built with Next.js and Postgres. It's built to 
 - Navigate between routes extremely fast (prefetching and caching)
 - Retain your UI position on reload (URL state)
 
+**Demo: https://next-email-client.vercel.app**
+
 ## Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/)

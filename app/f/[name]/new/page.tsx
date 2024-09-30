@@ -113,9 +113,9 @@ export default function ComposePage() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
-                      disabled
                       type="button"
-                      className="cursor-not-allowed px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                      disabled={isProduction}
+                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Send later
                     </button>
@@ -127,9 +127,9 @@ export default function ComposePage() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
-                      disabled
                       type="button"
-                      className="cursor-not-allowed px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                      disabled={isProduction}
+                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Remind me
                     </button>

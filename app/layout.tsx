@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { RightSidebar } from './components/right-sidebar';
+import { WelcomeToast } from './components/welcome-toast';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,6 +22,8 @@ export default function RootLayout({
       <body className="flex h-screen">
         <main className="flex-grow overflow-hidden">{children}</main>
         <RightSidebar userId={1} />
+        <Toaster closeButton />
+        <WelcomeToast />
       </body>
     </html>
   );

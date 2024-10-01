@@ -1,5 +1,5 @@
 {
-  "id": "8497ddff-d0e4-4209-acc5-1fb49034387d",
+  "id": "2bb4aa26-21bc-47db-a17f-dd39c8e3048e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -377,15 +377,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "facebook": {
-          "name": "facebook",
+        "github": {
+          "name": "github",
           "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text",
           "primaryKey": false,
           "notNull": false
         },

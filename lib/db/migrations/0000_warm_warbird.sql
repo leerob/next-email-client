@@ -41,8 +41,7 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"location" varchar(100),
 	"twitter" varchar(100),
 	"linkedin" varchar(100),
-	"facebook" varchar(100),
-	"bio" text,
+	"github" varchar(100),
 	"avatar_url" varchar(255)
 );
 --> statement-breakpoint

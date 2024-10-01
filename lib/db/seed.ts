@@ -173,7 +173,7 @@ Here are the steps to test out Turbopack:
 1. npx create-next-app@canary
 2. Select Turbopack when prompted
 3. Run 'npm install' to install dependencies
-4. Start the development server with 'npm run dev --turbo'
+4. Start the development server with 'npm run dev -- --turbo'
 5. That's it!
 
 Let me know if you encounter any issues or have any questions.

@@ -6,7 +6,6 @@ import { useEffect, useRef } from 'react';
 
 export function Search() {
   let inputRef = useRef<HTMLInputElement>(null);
-
   let searchParams = useSearchParams();
 
   useEffect(() => {

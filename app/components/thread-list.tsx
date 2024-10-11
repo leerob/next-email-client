@@ -26,6 +26,40 @@ interface ThreadListProps {
   searchQuery?: string;
 }
 
+export function ThreadHeader({
+  folderName,
+  count,
+}: {
+  folderName: string;
+  count?: number | undefined;
+}) {
+  return (
+    <div className="flex items-center justify-between p-4 border-b border-gray-200 h-[70px]">
+      <div className="flex items-center">
+        <NavMenu />
+        <h1 className="text-xl font-semibold flex items-center capitalize">
+          {folderName}
+          <span className="ml-2 text-sm text-gray-400">{count}</span>
+        </h1>
+      </div>
+      <div className="flex items-center space-x-2">
+        <Link
+          href={`/f/${folderName}/new`}
+          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+        >
+          <PenSquare size={18} />
+        </Link>
+        <Link
+          href="/search"
+          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+        >
+          <Search size={18} />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export function ThreadList({ folderName, threads }: ThreadListProps) {
   const [hoveredThread, setHoveredThread] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -57,29 +91,7 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
 
   return (
     <div className="flex-grow border-r border-gray-200 overflow-hidden">
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center">
-          <NavMenu />
-          <h1 className="text-xl font-semibold flex items-center capitalize">
-            {folderName}
-            <span className="ml-2 text-sm text-gray-400">{threads.length}</span>
-          </h1>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Link
-            href={`/f/${folderName}/new`}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
-          >
-            <PenSquare size={18} />
-          </Link>
-          <Link
-            href="/search"
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
-          >
-            <Search size={18} />
-          </Link>
-        </div>
-      </div>
+      <ThreadHeader folderName={folderName} count={threads.length} />
       <div className="overflow-auto h-[calc(100vh-64px)]">
         {threads.map((thread) => {
           const latestEmail = thread.emails[0];

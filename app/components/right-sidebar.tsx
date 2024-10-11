@@ -1,15 +1,8 @@
 import { Linkedin, Twitter, Github } from 'lucide-react';
 import { getUserProfile } from '@/lib/db/queries';
-import { unstable_cache } from 'next/cache';
-
-// This API will be improved soon!
-const getCachedUserProfile = unstable_cache(
-  async (userId) => getUserProfile(userId),
-  ['profile']
-);
 
 export async function RightSidebar({ userId }: { userId: number }) {
-  let user = await getCachedUserProfile(userId);
+  let user = await getUserProfile(userId);
 
   if (!user) {
     return null;
@@ -76,5 +69,11 @@ export async function RightSidebar({ userId }: { userId: number }) {
         </div>
       </div>
     </div>
+  );
+}
+
+export function RightSidebarSkeleton() {
+  return (
+    <div className="hidden sm:flex flex-shrink-0 w-[350px] p-6 overflow-auto bg-neutral-50" />
   );
 }

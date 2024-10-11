@@ -62,7 +62,7 @@ export default async function SearchPage({
   return (
     <div className="flex h-screen">
       <div className="flex-grow border-r border-gray-200 overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 h-[70px]">
           <div className="flex items-center w-full">
             <NavMenu />
             <Suspense>

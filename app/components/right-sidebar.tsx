@@ -71,9 +71,3 @@ export async function RightSidebar({ userId }: { userId: number }) {
     </div>
   );
 }
-
-export function RightSidebarSkeleton() {
-  return (
-    <div className="hidden sm:flex flex-shrink-0 w-[350px] p-6 overflow-auto bg-neutral-50" />
-  );
-}

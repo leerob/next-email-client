@@ -2,6 +2,19 @@ import { ThreadHeader, ThreadList } from '@/app/components/thread-list';
 import { getThreadsForFolder } from '@/lib/db/queries';
 import { Suspense, use } from 'react';
 
+export function generateStaticParams() {
+  const folderNames = [
+    'inbox',
+    'starred',
+    'drafts',
+    'sent',
+    'archive',
+    'trash',
+  ];
+
+  return folderNames.map((name) => ({ name }));
+}
+
 export default function ThreadsPage({
   params,
   searchParams,

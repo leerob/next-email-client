@@ -9,6 +9,8 @@ type Folder = {
 };
 
 export async function getFoldersWithThreadCount() {
+  'use cache';
+
   let foldersWithCount = await db
     .select({
       name: folders.name,
@@ -32,6 +34,8 @@ export async function getFoldersWithThreadCount() {
 }
 
 export async function getThreadsForFolder(folderName: string) {
+  'use cache';
+
   let originalFolderName = toTitleCase(decodeURIComponent(folderName));
 
   const threadsWithEmails = await db
@@ -143,6 +147,8 @@ export async function searchThreads(search: string | undefined) {
 }
 
 export async function getThreadInFolder(folderName: string, threadId: string) {
+  'use cache';
+
   let originalFolderName = toTitleCase(decodeURIComponent(folderName));
   let result = await db
     .select({
@@ -169,6 +175,8 @@ export async function getThreadInFolder(folderName: string, threadId: string) {
 }
 
 export async function getEmailsForThread(threadId: string) {
+  'use cache';
+
   const result = await db
     .select({
       id: threads.id,
@@ -211,6 +219,8 @@ export async function getEmailsForThread(threadId: string) {
 }
 
 export async function getAllEmailAddresses() {
+  'use cache';
+
   return db
     .select({
       firstName: users.firstName,
@@ -221,6 +231,8 @@ export async function getAllEmailAddresses() {
 }
 
 export async function getUserProfile(userId: number) {
+  'use cache';
+
   const userInfo = await db
     .select({
       id: users.id,

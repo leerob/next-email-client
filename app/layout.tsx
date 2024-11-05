@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { RightSidebar, RightSidebarSkeleton } from './components/right-sidebar';
+import { RightSidebar } from './components/right-sidebar';
 import { WelcomeToast } from './components/welcome-toast';
 import { Toaster } from 'sonner';
 import { Suspense } from 'react';
@@ -29,5 +29,11 @@ export default function RootLayout({
         <WelcomeToast />
       </body>
     </html>
+  );
+}
+
+function RightSidebarSkeleton() {
+  return (
+    <div className="hidden sm:flex flex-shrink-0 w-[350px] p-6 overflow-auto bg-neutral-50" />
   );
 }

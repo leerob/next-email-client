@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { Suspense, useActionState } from 'react';
 import { Paperclip, Trash2 } from 'lucide-react';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -14,6 +14,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+
+function DiscardDraftLink() {
+  let { name } = useParams();
+
+  return (
+    <Link href={`/f/${name}`} className="text-gray-400 hover:text-gray-600">
+      <Trash2 size={20} />
+    </Link>
+  );
+}
 
 function EmailBody({ defaultValue = '' }: { defaultValue?: string }) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -41,7 +51,6 @@ function EmailBody({ defaultValue = '' }: { defaultValue?: string }) {
 }
 
 export default function ComposePage() {
-  let { name } = useParams();
   let [state, formAction] = useActionState(sendEmailAction, {
     error: '',
     previous: {
@@ -154,12 +163,9 @@ export default function ComposePage() {
                     <p>Attachments are not yet implemented</p>
                   </TooltipContent>
                 </Tooltip>
-                <Link
-                  href={`/f/${name}`}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <Trash2 size={20} />
-                </Link>
+                <Suspense fallback={<Trash2 size={20} />}>
+                  <DiscardDraftLink />
+                </Suspense>
               </div>
             </TooltipProvider>
           </div>

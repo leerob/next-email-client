@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   experimental: {
     ppr: true,
     dynamicIO: true,
+    serverSourceMaps: true,
   },
   async redirects() {
     return [

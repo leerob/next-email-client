@@ -1,6 +1,6 @@
 import { ThreadHeader, ThreadList } from '@/app/components/thread-list';
 import { getThreadsForFolder } from '@/lib/db/queries';
-import { Suspense, use } from 'react';
+import { Suspense } from 'react';
 
 export function generateStaticParams() {
   const folderNames = [
@@ -22,12 +22,10 @@ export default function ThreadsPage({
   params: Promise<{ name: string }>;
   searchParams: Promise<{ q?: string; id?: string }>;
 }) {
-  let name = use(params).name;
-
   return (
     <div className="flex h-screen">
-      <Suspense fallback={<ThreadsSkeleton folderName={name} />}>
-        <Threads folderName={name} searchParams={searchParams} />
+      <Suspense fallback={<ThreadsSkeleton folderName="" />}>
+        <Threads params={params} searchParams={searchParams} />
       </Suspense>
     </div>
   );
@@ -42,16 +40,15 @@ function ThreadsSkeleton({ folderName }: { folderName: string }) {
 }
 
 async function Threads({
-  folderName,
+  params,
   searchParams,
 }: {
-  folderName: string;
+  params: Promise<{ name: string }>;
   searchParams: Promise<{ q?: string; id?: string }>;
 }) {
-  let q = (await searchParams).q;
-  let threads = await getThreadsForFolder(folderName);
+  let { name } = await params;
+  let { q } = await searchParams;
+  let threads = await getThreadsForFolder(name);
 
-  return (
-    <ThreadList folderName={folderName} threads={threads} searchQuery={q} />
-  );
+  return <ThreadList folderName={name} threads={threads} searchQuery={q} />;
 }

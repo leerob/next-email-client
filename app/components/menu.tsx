@@ -2,6 +2,7 @@ import { Menu, Star, FileText, Send, Check, Trash } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
@@ -20,7 +21,7 @@ export function NavMenu() {
         className="w-[300px] sm:w-[400px] transition-transform duration-200 ease-out data-[state=open]:duration-200 data-[state=open]:ease-out"
       >
         <SheetTitle>Menu</SheetTitle>
-        <nav className="flex flex-col space-y-4 mt-8">
+        <nav className="flex flex-col space-y-4 mt-4">
           <Link
             href="/f/inbox"
             className="flex items-center space-x-2 text-gray-700 hover:bg-gray-100 p-2 rounded"

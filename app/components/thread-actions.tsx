@@ -9,7 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 interface ThreadActionsProps {
   threadId: number;
@@ -35,8 +35,8 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
   const buttonClasses = cn(
     'w-6 h-6 rounded-full hover:bg-gray-200 transition-colors cursor-pointer',
     'flex items-center justify-center',
-    'disabled:opacity-50 disabled:cursor-not-allowed'
-  )
+    'disabled:opacity-50 disabled:cursor-not-allowed',
+  );
 
   return (
     <TooltipProvider>
@@ -62,10 +62,7 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <button
-              disabled
-              className={buttonClasses}
-            >
+            <button disabled className={buttonClasses}>
               <Clock size={14} className="text-gray-400" />
             </button>
           </TooltipTrigger>

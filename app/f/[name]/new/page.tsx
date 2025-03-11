@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { sendEmailAction } from '@/lib/db/actions';
+import { cn } from '@/lib/utils';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { Paperclip, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -62,6 +63,13 @@ export default function ComposePage() {
 
   const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
+  const buttonClasses = cn(
+    'px-3 py-1',
+    'text-sm font-medium text-gray-700',
+    'cursor-pointer rounded-full bg-gray-100 transition-colors hover:bg-gray-200',
+    'disabled:cursor-not-allowed disabled:opacity-50',
+  );
+
   return (
     <div className="flex h-full grow">
       <LeftSidebar />
@@ -108,7 +116,7 @@ export default function ComposePage() {
                     <button
                       type="submit"
                       disabled={isProduction}
-                      className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                      className={buttonClasses}
                     >
                       Send
                     </button>
@@ -124,7 +132,7 @@ export default function ComposePage() {
                     <button
                       type="button"
                       disabled={isProduction}
-                      className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                      className={buttonClasses}
                     >
                       Send later
                     </button>
@@ -138,7 +146,7 @@ export default function ComposePage() {
                     <button
                       type="button"
                       disabled={isProduction}
-                      className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                      className={buttonClasses}
                     >
                       Remind me
                     </button>
@@ -154,7 +162,7 @@ export default function ComposePage() {
                     <button
                       disabled
                       type="button"
-                      className="cursor-not-allowed text-gray-400 hover:text-gray-600"
+                      className="cursor-pointer text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
                     >
                       <Paperclip size={20} />
                     </button>

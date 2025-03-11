@@ -1,5 +1,5 @@
-import { Linkedin, Twitter, Github } from 'lucide-react';
 import { getUserProfile } from '@/lib/db/queries';
+import { SiGithub, SiX } from '@icons-pack/react-simple-icons';
 
 export async function RightSidebar({ userId }: { userId: number }) {
   let user = await getUserProfile(userId);
@@ -40,7 +40,22 @@ export async function RightSidebar({ userId }: { userId: number }) {
               rel="noopener noreferrer"
               className="flex items-center"
             >
-              <Linkedin size={16} className="mr-2" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-linkedin mr-2"
+              >
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect width="4" height="12" x="2" y="9" />
+                <circle cx="4" cy="4" r="2" />
+              </svg>
               <span className="text-sm">LinkedIn</span>
             </a>
           )}
@@ -51,8 +66,8 @@ export async function RightSidebar({ userId }: { userId: number }) {
               rel="noopener noreferrer"
               className="flex items-center"
             >
-              <Twitter size={16} className="mr-2" />
-              <span className="text-sm">Twitter</span>
+              <SiX className="size-4 mr-2" />
+              <span className="text-sm">Twitter/X</span>
             </a>
           )}
           {user.github && (
@@ -62,7 +77,7 @@ export async function RightSidebar({ userId }: { userId: number }) {
               rel="noopener noreferrer"
               className="flex items-center"
             >
-              <Github size={16} className="mr-2" />
+              <SiGithub className="size-4 mr-2" />
               <span className="text-sm">GitHub</span>
             </a>
           )}

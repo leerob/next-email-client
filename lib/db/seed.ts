@@ -26,6 +26,9 @@ async function seedUsers() {
       company: 'Vercel',
       location: 'Des Moines, Iowa',
       avatarUrl: 'https://github.com/leerob.png',
+      linkedin: 'https://www.linkedin.com/in/leeerob/',
+      twitter: 'https://x.com/leeerob',
+      github: 'https://github.com/leerob'
     },
     {
       firstName: 'Guillermo',

@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`bg-white text-gray-800 ${inter.className}`}>
       <body className="flex h-screen">
-        <main className="flex-grow overflow-hidden">{children}</main>
+        <main className="grow overflow-hidden">{children}</main>
         <Suspense fallback={<RightSidebarSkeleton />}>
           <RightSidebar userId={1} />
         </Suspense>
@@ -34,6 +34,6 @@ export default function RootLayout({
 
 function RightSidebarSkeleton() {
   return (
-    <div className="hidden sm:flex flex-shrink-0 w-[350px] p-6 overflow-auto bg-neutral-50" />
+    <div className="hidden sm:flex shrink-0 w-[350px] p-6 overflow-auto bg-neutral-50" />
   );
 }

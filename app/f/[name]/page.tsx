@@ -33,7 +33,7 @@ export default function ThreadsPage({
 
 function ThreadsSkeleton({ folderName }: { folderName: string }) {
   return (
-    <div className="flex-grow border-r border-gray-200 overflow-hidden">
+    <div className="grow border-r border-gray-200 overflow-hidden">
       <ThreadHeader folderName={folderName} />
     </div>
   );

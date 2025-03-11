@@ -14,6 +14,7 @@ This is an email client template built with Next.js and Postgres. It's built to 
 - **Framework**: [Next.js](https://nextjs.org/)
 - **Database**: [Postgres](https://www.postgresql.org/)
 - **ORM**: [Drizzle](https://orm.drizzle.team/)
+- **Tailwind v4**: [Tailwindcss](https://tailwindcss.com/)
 - **UI Library**: [shadcn/ui](https://ui.shadcn.com/)
 
 ## Getting Started

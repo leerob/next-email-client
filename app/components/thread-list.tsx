@@ -90,7 +90,7 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
   };
 
   return (
-    <div className="flex-grow border-r border-gray-200 overflow-hidden">
+    <div className="grow border-r border-gray-200 overflow-hidden">
       <ThreadHeader folderName={folderName} count={threads.length} />
       <div className="overflow-auto h-[calc(100vh-64px)]">
         {threads.map((thread) => {
@@ -107,13 +107,13 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
                 onMouseEnter={() => handleMouseEnter(thread.id)}
                 onMouseLeave={handleMouseLeave}
               >
-                <div className="flex-grow flex items-center overflow-hidden p-4">
-                  <div className="w-[200px] flex-shrink-0 mr-4">
+                <div className="grow flex items-center overflow-hidden p-4">
+                  <div className="w-[200px] shrink-0 mr-4">
                     <span className="font-medium truncate">
                       {formatEmailString(latestEmail.sender)}
                     </span>
                   </div>
-                  <div className="flex-grow flex items-center overflow-hidden">
+                  <div className="grow flex items-center overflow-hidden">
                     <span className="font-medium truncate min-w-[175px] max-w-[400px] mr-2">
                       {thread.subject}
                     </span>
@@ -122,7 +122,7 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-end flex-shrink-0 w-40 p-4">
+                <div className="flex items-center justify-end shrink-0 w-40 p-4">
                   {!isMobile && hoveredThread === thread.id ? (
                     <ThreadActions threadId={thread.id} />
                   ) : (

@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { cn } from "@/lib/utils";
 
 interface ThreadActionsProps {
   threadId: number;
@@ -20,16 +21,22 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
     success: false,
   };
 
-  let [doneState, doneAction, donePending] = useActionState(
+  const [doneState, doneAction, donePending] = useActionState(
     moveThreadToDone,
     initialState,
   );
-  let [trashState, trashAction, trashPending] = useActionState(
+  const [trashState, trashAction, trashPending] = useActionState(
     moveThreadToTrash,
     initialState,
   );
 
   const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
+
+  const buttonClasses = cn(
+    'w-6 h-6 rounded-full hover:bg-gray-200 transition-colors cursor-pointer',
+    'flex items-center justify-center',
+    'disabled:opacity-50 disabled:cursor-not-allowed'
+  )
 
   return (
     <TooltipProvider>
@@ -41,7 +48,7 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
               <button
                 type="submit"
                 disabled={donePending || isProduction}
-                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className={buttonClasses}
               >
                 <Check size={14} className="text-gray-600" />
               </button>
@@ -57,7 +64,7 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
           <TooltipTrigger asChild>
             <button
               disabled
-              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors cursor-not-allowed"
+              className={buttonClasses}
             >
               <Clock size={14} className="text-gray-400" />
             </button>
@@ -73,7 +80,7 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
               <button
                 type="submit"
                 disabled={trashPending || isProduction}
-                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className={buttonClasses}
               >
                 <Archive size={14} className="text-gray-600" />
               </button>

@@ -11,7 +11,7 @@ export function NavMenu() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <button className="hover:bg-gray-100 p-2 mr-2 -ml-1 rounded-full">
+        <button className="cursor-pointer hover:bg-gray-100 p-2 mr-2 -ml-1 rounded-full">
           <Menu size={20} />
         </button>
       </SheetTrigger>

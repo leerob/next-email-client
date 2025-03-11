@@ -16,16 +16,16 @@ export default async function EmailPage({
   }
 
   return (
-    <div className="flex-grow h-full flex">
+    <div className="grow h-full flex">
       <LeftSidebar />
-      <div className="flex-grow p-2 sm:p-6 overflow-auto">
+      <div className="grow p-2 sm:p-6 overflow-auto">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start justify-between mb-6 mx-6">
-            <h1 className="text-2xl font-semibold pr-4 flex-grow max-w-2xl mt-4 sm:mt-0">
+            <h1 className="text-2xl font-semibold pr-4 grow max-w-2xl mt-4 sm:mt-0">
               {thread.subject}
             </h1>
-            <div className="flex items-center space-x-1 flex-shrink-0 mt-2 sm:mt-0">
-              <button className="text-gray-700 text-sm font-medium mr-2">
+            <div className="flex items-center space-x-1 shrink-0 mt-2 sm:mt-0">
+              <button className="cursor-pointer text-gray-700 text-sm font-medium mr-2">
                 Share
               </button>
               <ThreadActions threadId={thread.id} />

@@ -41,7 +41,7 @@ function EmailBody({ defaultValue = '' }: { defaultValue?: string }) {
       <textarea
         name="body"
         placeholder="Tip: Hit Shift ⏎ to send"
-        className="w-full h-[calc(100vh-300px)] resize-none border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full h-[calc(100vh-300px)] resize-none border border-gray-300 rounded-md p-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
         required
         onKeyDown={handleKeyDown}
         defaultValue={defaultValue}
@@ -63,9 +63,9 @@ export default function ComposePage() {
   const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
   return (
-    <div className="flex-grow h-full flex">
+    <div className="grow h-full flex">
       <LeftSidebar />
-      <div className="flex-grow p-6">
+      <div className="grow p-6">
         <h1 className="text-2xl font-semibold mb-6">New Message</h1>
         {state.error && (
           <div className="mb-4">
@@ -85,7 +85,7 @@ export default function ComposePage() {
               type="email"
               name="recipientEmail"
               defaultValue={state.previous.recipientEmail?.toString()}
-              className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="relative">
@@ -96,7 +96,7 @@ export default function ComposePage() {
               type="text"
               name="subject"
               defaultValue={state.previous.subject?.toString()}
-              className="w-full pl-20 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-20 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <EmailBody defaultValue={state.previous.body?.toString()} />

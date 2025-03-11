@@ -27,7 +27,7 @@ export function Search() {
         ref={inputRef}
         id="search"
         name="q"
-        className="w-full py-2 bg-transparent focus:outline-none"
+        className="w-full py-2 bg-transparent focus:outline-hidden"
         placeholder="Search"
         defaultValue={searchParams.get('q')?.toString()}
       />

@@ -9,7 +9,7 @@ export async function RightSidebar({ userId }: { userId: number }) {
   }
 
   return (
-    <div className="hidden sm:flex flex-shrink-0 w-[350px] p-6 overflow-auto bg-neutral-50">
+    <div className="hidden sm:flex shrink-0 w-[350px] p-6 overflow-auto bg-neutral-50">
       <div className="max-w-md">
         <h2 className="text-2xl font-bold mb-2">{`${user.firstName} ${user.lastName}`}</h2>
         <div className="flex items-center mb-4">

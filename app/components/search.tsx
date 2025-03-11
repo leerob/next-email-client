@@ -13,7 +13,7 @@ export function Search() {
       inputRef.current.focus();
       inputRef.current.setSelectionRange(
         inputRef.current.value.length,
-        inputRef.current.value.length
+        inputRef.current.value.length,
       );
     }
   }, []);

@@ -22,11 +22,11 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
 
   let [doneState, doneAction, donePending] = useActionState(
     moveThreadToDone,
-    initialState
+    initialState,
   );
   let [trashState, trashAction, trashPending] = useActionState(
     moveThreadToTrash,
-    initialState
+    initialState,
   );
 
   const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';

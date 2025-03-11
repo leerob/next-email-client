@@ -15,7 +15,7 @@ export async function getFoldersWithThreadCount() {
     .select({
       name: folders.name,
       thread_count: sql<number>`count(${threadFolders.threadId})`.as(
-        'thread_count'
+        'thread_count',
       ),
     })
     .from(folders)
@@ -27,7 +27,7 @@ export async function getFoldersWithThreadCount() {
     .map((name) => foldersWithCount.find((folder) => folder.name === name))
     .filter(Boolean) as Folder[];
   let otherFolders = foldersWithCount.filter(
-    (folder) => !specialFoldersOrder.includes(folder.name)
+    (folder) => !specialFoldersOrder.includes(folder.name),
   ) as Folder[];
 
   return { specialFolders, otherFolders };
@@ -115,8 +115,8 @@ export async function searchThreads(search: string | undefined) {
         ilike(users.lastName, `%${search}%`),
         ilike(users.email, `%${search}%`),
         ilike(threads.subject, `%${search}%`),
-        ilike(emails.body, `%${search}%`)
-      )
+        ilike(emails.body, `%${search}%`),
+      ),
     )
     .orderBy(desc(threads.lastActivityDate), desc(emails.sentDate));
 
@@ -167,8 +167,8 @@ export async function getThreadInFolder(folderName: string, threadId: string) {
     .where(
       and(
         eq(folders.name, originalFolderName),
-        eq(threads.id, parseInt(threadId))
-      )
+        eq(threads.id, parseInt(threadId)),
+      ),
     );
 
   return result[0];

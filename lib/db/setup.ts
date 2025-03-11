@@ -16,14 +16,14 @@ function question(query: string): Promise<string> {
     rl.question(query, (ans) => {
       rl.close();
       resolve(ans);
-    })
+    }),
   );
 }
 
 async function getPostgresURL(): Promise<string> {
   console.log('Step 1: Setting up Postgres');
   const dbChoice = await question(
-    'Do you want to use a local Postgres instance with Docker (L) or a remote Postgres instance (R)? (L/R): '
+    'Do you want to use a local Postgres instance with Docker (L) or a remote Postgres instance (R)? (L/R): ',
   );
 
   if (dbChoice.toLowerCase() === 'l') {
@@ -32,7 +32,7 @@ async function getPostgresURL(): Promise<string> {
     return 'postgres://postgres:postgres@localhost:54322/postgres';
   } else {
     console.log(
-      'You can find Postgres databases at: https://vercel.com/marketplace?category=databases'
+      'You can find Postgres databases at: https://vercel.com/marketplace?category=databases',
     );
     return await question('Enter your POSTGRES_URL: ');
   }
@@ -45,10 +45,10 @@ async function setupLocalPostgres() {
     console.log('Docker is installed.');
   } catch (error) {
     console.error(
-      'Docker is not installed. Please install Docker and try again.'
+      'Docker is not installed. Please install Docker and try again.',
     );
     console.log(
-      'To install Docker, visit: https://docs.docker.com/get-docker/'
+      'To install Docker, visit: https://docs.docker.com/get-docker/',
     );
     process.exit(1);
   }
@@ -74,7 +74,7 @@ volumes:
 
   await fs.writeFile(
     path.join(process.cwd(), 'docker-compose.yml'),
-    dockerComposeContent
+    dockerComposeContent,
   );
   console.log('docker-compose.yml file created.');
 
@@ -84,7 +84,7 @@ volumes:
     console.log('Docker container started successfully.');
   } catch (error) {
     console.error(
-      'Failed to start Docker container. Please check your Docker installation and try again.'
+      'Failed to start Docker container. Please check your Docker installation and try again.',
     );
     process.exit(1);
   }

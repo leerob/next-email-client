@@ -1,10 +1,10 @@
 import { searchThreads } from '@/lib/db/queries';
-import { NavMenu } from '../components/menu';
-import Link from 'next/link';
-import { X } from 'lucide-react';
 import { formatEmailString, highlightText } from '@/lib/utils';
-import { Search } from '../components/search';
+import { X } from 'lucide-react';
+import Link from 'next/link';
 import { Suspense } from 'react';
+import { NavMenu } from '../components/menu';
+import { Search } from '../components/search';
 
 async function Threads({
   searchParams,
@@ -15,7 +15,7 @@ async function Threads({
   let threads = await searchThreads(q);
 
   return (
-    <div className="overflow-auto h-[calc(100vh-64px)]">
+    <div className="h-[calc(100vh-64px)] overflow-auto">
       {threads.map((thread) => {
         const latestEmail = thread.latestEmail;
         return (
@@ -24,24 +24,24 @@ async function Threads({
             href={`/f/${thread.folderName.toLowerCase()}/${thread.id}`}
           >
             <div
-              className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100`}
+              className={`flex cursor-pointer items-center border-b border-gray-100 p-4 hover:bg-gray-50`}
             >
-              <div className="grow flex items-center overflow-hidden">
-                <div className="w-[200px] shrink-0 mr-4">
-                  <span className="font-medium truncate">
+              <div className="flex grow items-center overflow-hidden">
+                <div className="mr-4 w-[200px] shrink-0">
+                  <span className="truncate font-medium">
                     {highlightText(formatEmailString(latestEmail.sender), q)}
                   </span>
                 </div>
-                <div className="grow flex items-center overflow-hidden">
-                  <span className="font-medium truncate min-w-[175px] max-w-[400px] mr-2">
+                <div className="flex grow items-center overflow-hidden">
+                  <span className="mr-2 max-w-[400px] min-w-[175px] truncate font-medium">
                     {highlightText(thread.subject, q)}
                   </span>
-                  <span className="text-gray-600 truncate">
+                  <span className="truncate text-gray-600">
                     {highlightText(latestEmail.body, q)}
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-end shrink-0 w-40 ml-4">
+              <div className="ml-4 flex w-40 shrink-0 items-center justify-end">
                 <span className="text-sm text-gray-500">
                   {new Date(thread.lastActivityDate).toLocaleDateString()}
                 </span>
@@ -61,18 +61,18 @@ export default async function SearchPage({
 }) {
   return (
     <div className="flex h-screen">
-      <div className="grow border-r border-gray-200 overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 h-[70px]">
-          <div className="flex items-center w-full">
+      <div className="grow overflow-hidden border-r border-gray-200">
+        <div className="flex h-[70px] items-center justify-between border-b border-gray-200 p-4">
+          <div className="flex w-full items-center">
             <NavMenu />
             <Suspense>
               <Search />
             </Suspense>
           </div>
-          <div className="flex items-center ml-4">
+          <div className="ml-4 flex items-center">
             <Link href="/" passHref>
               <button
-                className="cursor-pointer w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-100"
                 aria-label="Close search"
               >
                 <X size={18} />

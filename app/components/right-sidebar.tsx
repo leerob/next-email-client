@@ -9,24 +9,24 @@ export async function RightSidebar({ userId }: { userId: number }) {
   }
 
   return (
-    <div className="hidden sm:flex shrink-0 w-[350px] p-6 overflow-auto bg-neutral-50">
+    <div className="hidden w-[350px] shrink-0 overflow-auto bg-neutral-50 p-6 sm:flex">
       <div className="max-w-md">
-        <h2 className="text-2xl font-bold mb-2">{`${user.firstName} ${user.lastName}`}</h2>
-        <div className="flex items-center mb-4">
+        <h2 className="mb-2 text-2xl font-bold">{`${user.firstName} ${user.lastName}`}</h2>
+        <div className="mb-4 flex items-center">
           <img
             src={user.avatarUrl || '/placeholder.svg?height=40&width=40'}
             alt={`${user.firstName} ${user.lastName}`}
-            className="w-10 h-10 rounded-full mr-4"
+            className="mr-4 h-10 w-10 rounded-full"
           />
           <div>
             <p className="text-blue-600">{user.email}</p>
             <p className="text-sm text-gray-600">{user.location}</p>
           </div>
         </div>
-        <p className="text-gray-700 mb-4">{`${user.jobTitle} at ${user.company}`}</p>
+        <p className="mb-4 text-gray-700">{`${user.jobTitle} at ${user.company}`}</p>
 
-        <h3 className="font-semibold mb-2">Mail</h3>
-        <ul className="text-sm text-gray-600 space-y-1 mb-4">
+        <h3 className="mb-2 font-semibold">Mail</h3>
+        <ul className="mb-4 space-y-1 text-sm text-gray-600">
           {user.latestThreads.map((thread, index) => (
             <li key={index}>{thread.subject}</li>
           ))}
@@ -66,7 +66,7 @@ export async function RightSidebar({ userId }: { userId: number }) {
               rel="noopener noreferrer"
               className="flex items-center"
             >
-              <SiX className="size-4 mr-2" />
+              <SiX className="mr-2 size-4" />
               <span className="text-sm">Twitter/X</span>
             </a>
           )}
@@ -77,7 +77,7 @@ export async function RightSidebar({ userId }: { userId: number }) {
               rel="noopener noreferrer"
               className="flex items-center"
             >
-              <SiGithub className="size-4 mr-2" />
+              <SiGithub className="mr-2 size-4" />
               <span className="text-sm">GitHub</span>
             </a>
           )}

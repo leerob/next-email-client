@@ -1,14 +1,14 @@
+import { relations } from 'drizzle-orm';
 import {
+  index,
+  integer,
   pgTable,
   serial,
-  varchar,
   text,
   timestamp,
-  integer,
   uniqueIndex,
-  index,
+  varchar,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
 
 export const users = pgTable(
   'users',

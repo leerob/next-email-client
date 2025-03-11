@@ -1,7 +1,7 @@
-import { folders, emails, threadFolders, users, threads } from './schema';
-import { sql, eq, and, or, ilike, desc } from 'drizzle-orm';
-import { db } from './drizzle';
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
 import { toTitleCase } from '../utils';
+import { db } from './drizzle';
+import { emails, folders, threadFolders, threads, users } from './schema';
 
 type Folder = {
   name: string;

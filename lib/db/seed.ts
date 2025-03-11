@@ -1,11 +1,11 @@
 import { db } from './drizzle';
 import {
-  users,
   emails,
   folders,
-  userFolders,
-  threads,
   threadFolders,
+  threads,
+  userFolders,
+  users,
 } from './schema';
 
 async function seed() {

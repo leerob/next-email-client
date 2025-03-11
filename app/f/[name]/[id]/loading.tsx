@@ -2,10 +2,10 @@ import { LeftSidebar } from '@/app/components/left-sidebar';
 
 export default function LoadingThreadSkeleton() {
   return (
-    <div className="grow h-full flex">
+    <div className="flex h-full grow">
       <LeftSidebar />
-      <div className="grow p-2 sm:p-6 overflow-auto">
-        <div className="max-w-4xl mx-auto"></div>
+      <div className="grow overflow-auto p-2 sm:p-6">
+        <div className="mx-auto max-w-4xl"></div>
       </div>
     </div>
   );

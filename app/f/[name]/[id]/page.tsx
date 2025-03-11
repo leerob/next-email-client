@@ -1,7 +1,7 @@
 import { LeftSidebar } from '@/app/components/left-sidebar';
+import { ThreadActions } from '@/app/components/thread-actions';
 import { getEmailsForThread } from '@/lib/db/queries';
 import { notFound } from 'next/navigation';
-import { ThreadActions } from '@/app/components/thread-actions';
 
 export default async function EmailPage({
   params,
@@ -16,16 +16,16 @@ export default async function EmailPage({
   }
 
   return (
-    <div className="grow h-full flex">
+    <div className="flex h-full grow">
       <LeftSidebar />
-      <div className="grow p-2 sm:p-6 overflow-auto">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-start justify-between mb-6 mx-6">
-            <h1 className="text-2xl font-semibold pr-4 grow max-w-2xl mt-4 sm:mt-0">
+      <div className="grow overflow-auto p-2 sm:p-6">
+        <div className="mx-auto max-w-4xl">
+          <div className="mx-6 mb-6 flex flex-col items-start justify-between sm:flex-row">
+            <h1 className="mt-4 max-w-2xl grow pr-4 text-2xl font-semibold sm:mt-0">
               {thread.subject}
             </h1>
-            <div className="flex items-center space-x-1 shrink-0 mt-2 sm:mt-0">
-              <button className="cursor-pointer text-gray-700 text-sm font-medium mr-2">
+            <div className="mt-2 flex shrink-0 items-center space-x-1 sm:mt-0">
+              <button className="mr-2 cursor-pointer text-sm font-medium text-gray-700">
                 Share
               </button>
               <ThreadActions threadId={thread.id} />
@@ -33,8 +33,8 @@ export default async function EmailPage({
           </div>
           <div className="space-y-6">
             {thread.emails.map((email) => (
-              <div key={email.id} className="bg-gray-50 py-4 px-6 rounded-lg">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2">
+              <div key={email.id} className="rounded-lg bg-gray-50 px-6 py-4">
+                <div className="mb-2 flex flex-col items-start justify-between sm:flex-row sm:items-center">
                   <div className="font-semibold">
                     {email.sender.firstName} {email.sender.lastName} to{' '}
                     {email.recipientId === thread.emails[0].sender.id

@@ -1,19 +1,19 @@
 'use client';
 
-import { Suspense, useActionState } from 'react';
-import { Paperclip, Trash2 } from 'lucide-react';
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { LeftSidebar } from '@/app/components/left-sidebar';
-import { sendEmailAction } from '@/lib/db/actions';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { sendEmailAction } from '@/lib/db/actions';
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { Paperclip, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { Suspense, useActionState } from 'react';
 
 function DiscardDraftLink() {
   let { name } = useParams();
@@ -41,7 +41,7 @@ function EmailBody({ defaultValue = '' }: { defaultValue?: string }) {
       <textarea
         name="body"
         placeholder="Tip: Hit Shift ⏎ to send"
-        className="w-full h-[calc(100vh-300px)] resize-none border border-gray-300 rounded-md p-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+        className="h-[calc(100vh-300px)] w-full resize-none rounded-md border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
         required
         onKeyDown={handleKeyDown}
         defaultValue={defaultValue}
@@ -63,10 +63,10 @@ export default function ComposePage() {
   const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
   return (
-    <div className="grow h-full flex">
+    <div className="flex h-full grow">
       <LeftSidebar />
       <div className="grow p-6">
-        <h1 className="text-2xl font-semibold mb-6">New Message</h1>
+        <h1 className="mb-6 text-2xl font-semibold">New Message</h1>
         {state.error && (
           <div className="mb-4">
             <Alert variant="destructive" className="relative">
@@ -78,29 +78,29 @@ export default function ComposePage() {
         )}
         <form action={formAction} className="space-y-4">
           <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+            <span className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-500">
               To
             </span>
             <input
               type="email"
               name="recipientEmail"
               defaultValue={state.previous.recipientEmail?.toString()}
-              className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 py-2 pr-10 pl-12 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
             />
           </div>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+            <span className="absolute top-1/2 left-3 -translate-y-1/2 transform text-gray-500">
               Subject
             </span>
             <input
               type="text"
               name="subject"
               defaultValue={state.previous.subject?.toString()}
-              className="w-full pl-20 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 py-2 pl-20 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
             />
           </div>
           <EmailBody defaultValue={state.previous.body?.toString()} />
-          <div className="flex flex-col sm:flex-row items-center justify-between">
+          <div className="flex flex-col items-center justify-between sm:flex-row">
             <TooltipProvider>
               <div className="flex space-x-2">
                 <Tooltip>
@@ -108,7 +108,7 @@ export default function ComposePage() {
                     <button
                       type="submit"
                       disabled={isProduction}
-                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Send
                     </button>
@@ -124,7 +124,7 @@ export default function ComposePage() {
                     <button
                       type="button"
                       disabled={isProduction}
-                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Send later
                     </button>
@@ -138,7 +138,7 @@ export default function ComposePage() {
                     <button
                       type="button"
                       disabled={isProduction}
-                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Remind me
                     </button>
@@ -148,7 +148,7 @@ export default function ComposePage() {
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="flex mt-4 sm:mt-0 ml-auto space-x-3">
+              <div className="mt-4 ml-auto flex space-x-3 sm:mt-0">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button

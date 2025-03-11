@@ -23,7 +23,7 @@ function BackButton() {
 
 export function LeftSidebar() {
   return (
-    <div className="bg-gray-100 flex flex-col items-center py-6 space-y-4 pl-2 sm:pl-4 pr-2 sm:pr-24">
+    <div className="flex flex-col items-center space-y-4 bg-gray-100 py-6 pr-2 pl-2 sm:pr-24 sm:pl-4">
       <Suspense>
         <BackButton />
       </Suspense>

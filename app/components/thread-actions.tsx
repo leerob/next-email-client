@@ -1,15 +1,15 @@
 'use client';
 
-import { Check, Clock, Archive } from 'lucide-react';
-import { useActionState } from 'react';
-import { moveThreadToDone, moveThreadToTrash } from '@/lib/db/actions';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { moveThreadToDone, moveThreadToTrash } from '@/lib/db/actions';
 import { cn } from '@/lib/utils';
+import { Archive, Check, Clock } from 'lucide-react';
+import { useActionState } from 'react';
 
 interface ThreadActionsProps {
   threadId: number;
@@ -33,9 +33,9 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
   const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
   const buttonClasses = cn(
-    'w-6 h-6 rounded-full hover:bg-gray-200 transition-colors cursor-pointer',
+    'h-6 w-6 cursor-pointer rounded-full transition-colors hover:bg-gray-200',
     'flex items-center justify-center',
-    'disabled:opacity-50 disabled:cursor-not-allowed',
+    'disabled:cursor-not-allowed disabled:opacity-50',
   );
 
   return (

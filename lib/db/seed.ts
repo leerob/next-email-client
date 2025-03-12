@@ -27,7 +27,7 @@ async function seedUsers() {
       location: 'Des Moines, Iowa',
       avatarUrl: 'https://github.com/leerob.png',
       linkedin: 'https://www.linkedin.com/in/leeerob/',
-      twitter: 'https://x.com/leeerob',
+      twitter: 'https://x.com/leerob',
       github: 'https://github.com/leerob',
     },
     {

@@ -38,6 +38,6 @@ export function highlightText(text: string, query: string | undefined) {
       </mark>
     ) : (
       part
-    )
+    ),
   );
 }

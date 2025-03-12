@@ -1,14 +1,14 @@
+import { relations } from 'drizzle-orm';
 import {
+  index,
+  integer,
   pgTable,
   serial,
-  varchar,
   text,
   timestamp,
-  integer,
   uniqueIndex,
-  index,
+  varchar,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
 
 export const users = pgTable(
   'users',
@@ -29,7 +29,7 @@ export const users = pgTable(
     return {
       emailIndex: uniqueIndex('email_idx').on(table.email),
     };
-  }
+  },
 );
 
 export const threads = pgTable('threads', {
@@ -56,7 +56,7 @@ export const emails = pgTable(
       recipientIdIndex: index('recipient_id_idx').on(table.recipientId),
       sentDateIndex: index('sent_date_idx').on(table.sentDate),
     };
-  }
+  },
 );
 
 export const folders = pgTable('folders', {

@@ -1,11 +1,11 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
-import { redirect } from 'next/navigation';
-import { db } from './drizzle';
-import { users, emails, folders, threads, threadFolders } from './schema';
 import { eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { z } from 'zod';
+import { db } from './drizzle';
+import { emails, folders, threadFolders, threads, users } from './schema';
 
 const sendEmailSchema = z.object({
   subject: z.string().min(1, 'Subject is required'),

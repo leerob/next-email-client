@@ -1,14 +1,14 @@
 'use client';
 
-import { Check, Clock, Archive } from 'lucide-react';
-import { useActionState } from 'react';
-import { moveThreadToDone, moveThreadToTrash } from '@/lib/db/actions';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { moveThreadToDone, moveThreadToTrash } from '@/lib/db/actions';
+import { Archive, Check, Clock } from 'lucide-react';
+import { useActionState } from 'react';
 
 interface ThreadActionsProps {
   threadId: number;
@@ -20,13 +20,13 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
     success: false,
   };
 
-  let [doneState, doneAction, donePending] = useActionState(
+  const [doneState, doneAction, donePending] = useActionState(
     moveThreadToDone,
-    initialState
+    initialState,
   );
-  let [trashState, trashAction, trashPending] = useActionState(
+  const [trashState, trashAction, trashPending] = useActionState(
     moveThreadToTrash,
-    initialState
+    initialState,
   );
 
   const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
@@ -41,7 +41,7 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
               <button
                 type="submit"
                 disabled={donePending || isProduction}
-                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Check size={14} className="text-gray-600" />
               </button>
@@ -57,7 +57,7 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
           <TooltipTrigger asChild>
             <button
               disabled
-              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors cursor-not-allowed"
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Clock size={14} className="text-gray-400" />
             </button>
@@ -73,7 +73,7 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
               <button
                 type="submit"
                 disabled={trashPending || isProduction}
-                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Archive size={14} className="text-gray-600" />
               </button>

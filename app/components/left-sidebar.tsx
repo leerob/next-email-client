@@ -14,7 +14,7 @@ function BackButton() {
       <Button
         size="lg"
         variant="outline"
-        className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+        className="flex cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100"
       >
         <ArrowLeft className="size-4 sm:size-5" />
       </Button>
@@ -24,21 +24,21 @@ function BackButton() {
 
 export function LeftSidebar() {
   return (
-    <div className="bg-gray-100 flex flex-col items-center py-6 space-y-4 pl-2 sm:pl-4 pr-2 sm:pr-24">
+    <div className="flex flex-col items-center space-y-4 bg-gray-100 py-6 pr-2 pl-2 sm:pr-24 sm:pl-4">
       <Suspense>
         <BackButton />
       </Suspense>
       <Button
         size="lg"
         variant="outline"
-        className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+        className="flex cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100"
       >
         <ChevronUp className="size-4 sm:size-5" />
       </Button>
       <Button
         size="lg"
         variant="outline"
-        className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+        className="flex cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100"
       >
         <ChevronDown className="size-4 sm:size-5" />
       </Button>

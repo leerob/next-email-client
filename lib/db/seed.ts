@@ -1,11 +1,11 @@
 import { db } from './drizzle';
 import {
-  users,
   emails,
   folders,
-  userFolders,
-  threads,
   threadFolders,
+  threads,
+  userFolders,
+  users,
 } from './schema';
 
 async function seed() {
@@ -26,6 +26,9 @@ async function seedUsers() {
       company: 'Vercel',
       location: 'Des Moines, Iowa',
       avatarUrl: 'https://github.com/leerob.png',
+      linkedin: 'https://www.linkedin.com/in/leeerob/',
+      twitter: 'https://x.com/leerob',
+      github: 'https://github.com/leerob',
     },
     {
       firstName: 'Guillermo',

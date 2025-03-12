@@ -1,7 +1,7 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import Form from 'next/form';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
 export function Search() {
@@ -13,7 +13,7 @@ export function Search() {
       inputRef.current.focus();
       inputRef.current.setSelectionRange(
         inputRef.current.value.length,
-        inputRef.current.value.length
+        inputRef.current.value.length,
       );
     }
   }, []);
@@ -27,7 +27,7 @@ export function Search() {
         ref={inputRef}
         id="search"
         name="q"
-        className="w-full py-2 bg-transparent focus:outline-none"
+        className="w-full bg-transparent py-2 focus:outline-hidden"
         placeholder="Search"
         defaultValue={searchParams.get('q')?.toString()}
       />

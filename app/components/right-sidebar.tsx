@@ -1,5 +1,5 @@
 import { getUserProfile } from '@/lib/db/queries';
-import { SiGithub, SiX } from '@icons-pack/react-simple-icons';
+import Image from 'next/image';
 
 export async function RightSidebar({ userId }: { userId: number }) {
   let user = await getUserProfile(userId);
@@ -40,22 +40,13 @@ export async function RightSidebar({ userId }: { userId: number }) {
               rel="noopener noreferrer"
               className="flex items-center"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-linkedin mr-2"
-              >
-                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                <rect width="4" height="12" x="2" y="9" />
-                <circle cx="4" cy="4" r="2" />
-              </svg>
+              <Image
+                src="/linkedin.svg"
+                alt="LinkedIn"
+                width={16}
+                height={16}
+                className="mr-2"
+              />
               <span className="text-sm">LinkedIn</span>
             </a>
           )}
@@ -66,7 +57,13 @@ export async function RightSidebar({ userId }: { userId: number }) {
               rel="noopener noreferrer"
               className="flex items-center"
             >
-              <SiX className="mr-2 size-4" />
+              <Image
+                src="/x.svg"
+                alt="X/Twitter"
+                width={16}
+                height={16}
+                className="mr-2"
+              />
               <span className="text-sm">Twitter/X</span>
             </a>
           )}
@@ -77,7 +74,13 @@ export async function RightSidebar({ userId }: { userId: number }) {
               rel="noopener noreferrer"
               className="flex items-center"
             >
-              <SiGithub className="mr-2 size-4" />
+              <Image
+                src="/github.svg"
+                alt="GitHub"
+                width={16}
+                height={16}
+                className="mr-2"
+              />
               <span className="text-sm">GitHub</span>
             </a>
           )}

@@ -60,15 +60,15 @@ export async function getUserOrganizations(userId?: number) {
       role: organizationMembers.role,
       joinedAt: organizationMembers.joinedAt,
       memberCount: sql<number>`(
-        SELECT COUNT(*)::int 
-        FROM ${organizationMembers} om
-        WHERE om.organization_id = ${organizations.id}
-      )`,
+                                   SELECT COUNT(*)::int
+                                   FROM ${organizationMembers} om
+                                   WHERE om.organization_id = ${organizations.id}
+                               )`,
       recordingCount: sql<number>`(
-        SELECT COUNT(*)::int
-        FROM ${recordings} r
-        WHERE r.organization_id = ${organizations.id}
-      )`,
+                                      SELECT COUNT(*)::int
+                                      FROM ${recordings} r
+                                      WHERE r.organization_id = ${organizations.id}
+                                  )`,
     })
     .from(organizationMembers)
     .innerJoin(organizations, eq(organizationMembers.organizationId, organizations.id))
@@ -285,8 +285,6 @@ export async function searchRecordings(query: string) {
 
 // Dashboard stats
 export async function getDashboardStats() {
-  'use cache';
-
   const currentUserId = await getCurrentUserId();
   if (!currentUserId) return null;
 

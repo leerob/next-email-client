@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
-import { Building2, LogOut, Plus, Mic, Clock, CheckCircle, Loader2 } from "lucide-react"
+import { Building2, LogOut, Plus, Mic, Clock, CheckCircle, Loader2, Music, Save } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FuturisticAudioInputPanel } from "@/components/futuristic-audio-input-panel"
 
 interface Recording {
   id: number
@@ -36,6 +37,18 @@ interface Recording {
     lastName: string | null
     username: string
   }
+}
+
+interface AudioData {
+  file: File
+  url: string
+  duration: number
+  size: string
+  id: string
+  name: string
+  uploadedAt: Date
+  type: 'recording' | 'upload'
+  storageUrl?: string
 }
 
 interface Organization {
@@ -57,14 +70,16 @@ interface SidebarProps {
   organizations: Organization[]
   recordings: Recording[]
   onCreateRecording?: (name: string, organizationId: number) => Promise<void>
+  onCreateAudioRecording?: (audioData: AudioData, organizationId: number) => Promise<void>
 }
 
-export default function Sidebar({ user, organizations, recordings, onCreateRecording }: SidebarProps) {
+export default function Sidebar({ user, organizations, recordings, onCreateRecording, onCreateAudioRecording }: SidebarProps) {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [showNewRecording, setShowNewRecording] = useState(false)
   const [selectedOrg, setSelectedOrg] = useState(organizations[0]?.id || null)
   const [recordingName, setRecordingName] = useState("")
   const [isCreating, setIsCreating] = useState(false)
+  const [currentAudio, setCurrentAudio] = useState<AudioData | null>(null)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -127,6 +142,46 @@ export default function Sidebar({ user, organizations, recordings, onCreateRecor
     }
   }
 
+  // Handlers for Piano Audio Panel
+  const handleAudioChange = (audioData: AudioData) => {
+    setCurrentAudio(audioData)
+    console.log("Audio selected:", audioData.name)
+  }
+
+  const handleAudioSave = async (audioData: AudioData) => {
+    if (!selectedOrg || !onCreateAudioRecording) return
+    
+    setIsCreating(true)
+    try {
+      await onCreateAudioRecording(audioData, selectedOrg)
+      toast({
+        title: "Piano recording saved!",
+        description: "Your piano performance has been saved and is ready for analysis.",
+      })
+      setShowNewRecording(false)
+      setCurrentAudio(null)
+      router.refresh()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save piano recording",
+        variant: "destructive",
+      })
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  const handleAudioAnalyze = async (audioData: AudioData) => {
+    console.log("Analyzing piano performance:", audioData.name)
+    // You can add AI analysis logic here
+  }
+
+  const handleAudioShare = async (audioData: AudioData) => {
+    console.log("Sharing piano recording:", audioData.name)
+    // Share functionality
+  }
+
   const getStateIcon = (state: Recording["state"]) => {
     switch (state) {
       case "queued":
@@ -168,64 +223,79 @@ export default function Sidebar({ user, organizations, recordings, onCreateRecor
       </div>
 
       {/* New Recording Button - Only show if handler is provided */}
-      {onCreateRecording && (
+      {(onCreateRecording || onCreateAudioRecording) && (
         <div className="p-4">
           <Dialog open={showNewRecording} onOpenChange={setShowNewRecording}>
             <DialogTrigger asChild>
               <Button className="w-full justify-start gap-2" style={{ backgroundColor: "#C3F73A", color: "#01172F" }}>
                 <Plus className="h-4 w-4" />
-                New Recording
+                New Piano Recording
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-5xl w-[90vw] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Create New Recording</DialogTitle>
-                <DialogDescription>Start a new recording session for your organization.</DialogDescription>
+                <DialogTitle>🎹 Record Your Piano Performance</DialogTitle>
+                <DialogDescription>
+                  Record or upload your piano performance for AI-powered analysis
+                </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Recording Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="e.g., Team Meeting Q1 2024"
-                    value={recordingName}
-                    onChange={(e) => setRecordingName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="org">Organization</Label>
-                  <select
-                    id="org"
-                    className="w-full rounded-md border border-gray-300 p-2"
-                    value={selectedOrg || ""}
-                    onChange={(e) => setSelectedOrg(Number.parseInt(e.target.value))}
+              
+              {/* Organization Selection */}
+              <div className="mb-4 p-4 bg-stone-50 rounded-lg">
+                <Label htmlFor="org" className="text-stone-700 font-medium">Select Organization</Label>
+                <select
+                  id="org"
+                  className="w-full mt-2 rounded-md border border-stone-300 p-2 bg-white"
+                  value={selectedOrg || ""}
+                  onChange={(e) => setSelectedOrg(Number.parseInt(e.target.value))}
+                >
+                  {organizations.map((org) => (
+                    <option key={org.id} value={org.id}>
+                      {org.name} {org.isPersonal && "(Personal)"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Piano Audio Panel */}
+              <div className="pt-4">
+                <FuturisticAudioInputPanel
+                  onChange={handleAudioChange}
+                  onSave={handleAudioSave}
+                  onAnalyze={handleAudioAnalyze}
+                  onShare={handleAudioShare}
+                />
+              </div>
+
+              {/* Current Audio Info */}
+              {currentAudio && (
+                <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <Music className="h-5 w-5 text-amber-700" />
+                    <span className="font-medium text-amber-900">Ready to Save</span>
+                  </div>
+                  <p className="text-amber-800 text-sm">
+                    File: {currentAudio.name} • Duration: {Math.round(currentAudio.duration)}s
+                  </p>
+                  <Button 
+                    onClick={() => handleAudioSave(currentAudio)}
+                    disabled={isCreating || !selectedOrg}
+                    className="mt-3 bg-stone-800 hover:bg-stone-700 text-white"
                   >
-                    {organizations.map((org) => (
-                      <option key={org.id} value={org.id}>
-                        {org.name} {org.isPersonal && "(Personal)"}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setShowNewRecording(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateRecording} disabled={!recordingName.trim() || !selectedOrg || isCreating}>
                     {isCreating ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating...
+                        Saving Piano Recording...
                       </>
                     ) : (
                       <>
-                        <Mic className="mr-2 h-4 w-4" />
-                        Create Recording
+                        <Save className="mr-2 h-4 w-4" />
+                        Save Piano Performance
                       </>
                     )}
                   </Button>
                 </div>
-              </div>
+              )}
             </DialogContent>
           </Dialog>
         </div>

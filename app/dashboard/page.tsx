@@ -1,9 +1,9 @@
 // app/dashboard/page.tsx
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
+import { authOptions } from "@/lib/auth";;
+import DashboardClient from "./dashboard-client";
 import { getOrganizationRecordings, getUserOrganizations } from '@/lib/db/queries';
-import DashboardClient from '@/app/dashboard/dashboard-client';
 
 async function getDashboardData(userId: number) {
   try {
@@ -13,7 +13,8 @@ async function getDashboardData(userId: number) {
     // Fetch recordings for all organizations in parallel
     const recordingPromises = organizations.map(async (org) => {
       try {
-        const orgRecordings = await getOrganizationRecordings(org.id);
+        // Pass userId explicitly to avoid dynamic data access in cached functions
+        const orgRecordings = await getOrganizationRecordings(org.id, userId);
         return orgRecordings.map(rec => ({
           id: rec.id,
           name: rec.name,

@@ -2,8 +2,8 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import OrganizationsClient from "./organizations-client";
 import { getOrganizationRecordings, getUserOrganizations } from '@/lib/db/queries';
-import OrganizationsClient from '@/app/organizations/organizations-client';
 
 export default async function OrganizationsPage() {
   // Get session on the server
@@ -20,7 +20,8 @@ export default async function OrganizationsPage() {
   // Fetch all recordings for the sidebar
   const recordingPromises = organizations.map(async (org) => {
     try {
-      const orgRecordings = await getOrganizationRecordings(org.id);
+      // Pass userId explicitly to avoid dynamic data access in cached functions
+      const orgRecordings = await getOrganizationRecordings(org.id, session.user.id);
       return orgRecordings.map(rec => ({
         id: rec.id,
         name: rec.name,

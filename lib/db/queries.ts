@@ -19,24 +19,18 @@ async function getCurrentUserId() {
 
 // User queries
 export async function getUserById(userId: number) {
-  'use cache';
-
   return db.query.users.findFirst({
     where: eq(users.id, userId),
   });
 }
 
 export async function getUserByEmail(email: string) {
-  'use cache';
-
   return db.query.users.findFirst({
     where: eq(users.email, email),
   });
 }
 
 export async function getUserByUsername(username: string) {
-  'use cache';
-
   return db.query.users.findFirst({
     where: eq(users.username, username),
   });
@@ -44,8 +38,6 @@ export async function getUserByUsername(username: string) {
 
 // Organization queries
 export async function getUserOrganizations(userId?: number) {
-  'use cache';
-
   const currentUserId = userId || await getCurrentUserId();
   if (!currentUserId) return [];
 
@@ -79,8 +71,6 @@ export async function getUserOrganizations(userId?: number) {
 }
 
 export async function getOrganizationBySlug(slug: string) {
-  'use cache';
-
   const org = await db.query.organizations.findFirst({
     where: eq(organizations.slug, slug),
   });
@@ -107,8 +97,6 @@ export async function getOrganizationBySlug(slug: string) {
 }
 
 export async function getOrganizationMembers(organizationId: number) {
-  'use cache';
-
   return db
     .select({
       id: users.id,
@@ -127,8 +115,6 @@ export async function getOrganizationMembers(organizationId: number) {
 }
 
 export async function checkUserOrgAccess(userId: number, organizationId: number) {
-  'use cache';
-
   const membership = await db.query.organizationMembers.findFirst({
     where: and(
       eq(organizationMembers.userId, userId),
@@ -139,11 +125,10 @@ export async function checkUserOrgAccess(userId: number, organizationId: number)
   return membership;
 }
 
-// Recording queries
-export async function getOrganizationRecordings(organizationId: number) {
-  'use cache';
-
-  const currentUserId = await getCurrentUserId();
+// Recording queries - Updated to accept optional userId parameter
+export async function getOrganizationRecordings(organizationId: number, userId?: number) {
+  // If userId is not provided, try to get it from session
+  const currentUserId = userId || await getCurrentUserId();
   if (!currentUserId) return [];
 
   // Check if user has access to this organization
@@ -172,10 +157,8 @@ export async function getOrganizationRecordings(organizationId: number) {
     .orderBy(desc(recordings.createdAt));
 }
 
-export async function getRecordingById(recordingId: number) {
-  'use cache';
-
-  const currentUserId = await getCurrentUserId();
+export async function getRecordingById(recordingId: number, userId?: number) {
+  const currentUserId = userId || await getCurrentUserId();
   if (!currentUserId) return null;
 
   const recording = await db.query.recordings.findFirst({
@@ -196,10 +179,8 @@ export async function getRecordingById(recordingId: number) {
   return recording;
 }
 
-export async function getRecordingsByState(state: 'queued' | 'processing' | 'processed') {
-  'use cache';
-
-  const currentUserId = await getCurrentUserId();
+export async function getRecordingsByState(state: 'queued' | 'processing' | 'processed', userId?: number) {
+  const currentUserId = userId || await getCurrentUserId();
   if (!currentUserId) return [];
 
   // Get user's organizations
@@ -239,10 +220,8 @@ export async function getRecordingsByState(state: 'queued' | 'processing' | 'pro
     .orderBy(desc(recordings.createdAt));
 }
 
-export async function searchRecordings(query: string) {
-  'use cache';
-
-  const currentUserId = await getCurrentUserId();
+export async function searchRecordings(query: string, userId?: number) {
+  const currentUserId = userId || await getCurrentUserId();
   if (!currentUserId || !query) return [];
 
   // Get user's organizations
@@ -284,8 +263,8 @@ export async function searchRecordings(query: string) {
 }
 
 // Dashboard stats
-export async function getDashboardStats() {
-  const currentUserId = await getCurrentUserId();
+export async function getDashboardStats(userId?: number) {
+  const currentUserId = userId || await getCurrentUserId();
   if (!currentUserId) return null;
 
   // Get user's organizations

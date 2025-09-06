@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { getOrganizationRecordings, getUserOrganizations } from '@/lib/db/queries';
-import MainPageClient from '@/app/dashboard/main-page-client';
+import DashboardClient from '@/app/dashboard/dashboard-client';
 
 async function getDashboardData(userId: number) {
   try {
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
 
   // Render the client component with server-fetched data
   return (
-    <MainPageClient
+    <DashboardClient
       user={userData}
       organizations={organizations}
       recordings={recordings}

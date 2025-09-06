@@ -23,14 +23,6 @@ export default function SignIn() {
 
         <div className="space-y-4">
           <button
-            onClick={() => handleSignIn('google')}
-            disabled={isLoading === 'google'}
-            className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50"
-          >
-            {isLoading === 'google' ? 'Signing in...' : 'Sign in with Google'}
-          </button>
-
-          <button
             onClick={() => handleSignIn('github')}
             disabled={isLoading === 'github'}
             className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-gray-900 hover:bg-gray-800"

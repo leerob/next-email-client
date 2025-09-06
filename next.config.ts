@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/',
-        destination: '/f/inbox',
+        destination: '/auth/signin',
         permanent: false,
       },
     ];

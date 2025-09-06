@@ -1,175 +1,358 @@
+// lib/actions.ts
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { db } from './drizzle';
-import { emails, folders, threadFolders, threads, users } from './schema';
+import {
+  organizations,
+  organizationMembers,
+  recordings,
+  recordingResults,
+  users
+} from './schema';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-const sendEmailSchema = z.object({
-  subject: z.string().min(1, 'Subject is required'),
-  body: z.string().min(1, 'Body is required'),
-  recipientEmail: z.string().email('Invalid email address'),
+// Organization schemas
+const createOrganizationSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255),
+  slug: z.string().min(1, 'Slug is required').max(255).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with dashes'),
+  description: z.string().optional(),
 });
 
-export async function sendEmailAction(_: any, formData: FormData) {
-  let newThread;
-  let rawFormData = {
-    subject: formData.get('subject'),
-    body: formData.get('body'),
-    recipientEmail: formData.get('recipientEmail'),
-  };
+const inviteMemberSchema = z.object({
+  organizationId: z.number(),
+  email: z.string().email('Invalid email address'),
+  role: z.enum(['admin', 'member']),
+});
 
-  if (process.env.VERCEL_ENV === 'production') {
-    return {
-      error: 'Only works on localhost for now',
-      previous: rawFormData,
-    };
+// Recording schemas
+const createRecordingSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255),
+  organizationId: z.number(),
+});
+
+const updateRecordingStateSchema = z.object({
+  recordingId: z.number(),
+  state: z.enum(['queued', 'processing', 'processed']),
+  result: z.string().optional(), // Base64 encoded result
+});
+
+// Helper function to get current user
+async function getCurrentUser() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+  return session.user;
+}
+
+// Helper function to check organization membership
+async function checkOrgMembership(userId: number, organizationId: number, requiredRole?: 'admin' | 'member') {
+  const membership = await db.query.organizationMembers.findFirst({
+    where: and(
+      eq(organizationMembers.userId, userId),
+      eq(organizationMembers.organizationId, organizationId)
+    ),
+  });
+
+  if (!membership) {
+    throw new Error('Not a member of this organization');
   }
 
+  if (requiredRole === 'admin' && membership.role !== 'admin') {
+    throw new Error('Admin access required');
+  }
+
+  return membership;
+}
+
+// Organization actions
+export async function createOrganizationAction(_: any, formData: FormData) {
+  let newOrg;
+  const rawFormData = {
+    name: formData.get('name'),
+    slug: formData.get('slug'),
+    description: formData.get('description'),
+  };
+
   try {
-    let validatedFields = sendEmailSchema.parse({
-      subject: formData.get('subject'),
-      body: formData.get('body'),
-      recipientEmail: formData.get('recipientEmail'),
+    const user = await getCurrentUser();
+    const validatedFields = createOrganizationSchema.parse(rawFormData);
+
+    // Check if slug is already taken
+    const existingOrg = await db.query.organizations.findFirst({
+      where: eq(organizations.slug, validatedFields.slug),
     });
 
-    let { subject, body, recipientEmail } = validatedFields;
-
-    let [recipient] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, recipientEmail));
-
-    if (!recipient) {
-      [recipient] = await db
-        .insert(users)
-        .values({ email: recipientEmail })
-        .returning();
+    if (existingOrg) {
+      return { error: 'Organization slug already exists', previous: rawFormData };
     }
 
-    let result = await db
-      .insert(threads)
+    // Create organization
+    [newOrg] = await db
+      .insert(organizations)
       .values({
-        subject,
-        lastActivityDate: new Date(),
+        ...validatedFields,
+        ownerId: user.id,
+        isPersonal: false,
       })
       .returning();
-    newThread = result[0];
 
-    await db.insert(emails).values({
-      threadId: newThread.id,
-      senderId: 1, // Assuming the current user's ID is 1. Replace this with the actual user ID.
-      recipientId: recipient.id,
-      subject,
-      body,
-      sentDate: new Date(),
+    // Add creator as admin
+    await db.insert(organizationMembers).values({
+      organizationId: newOrg.id,
+      userId: user.id,
+      role: 'admin',
     });
 
-    let [sentFolder] = await db
-      .select()
-      .from(folders)
-      .where(eq(folders.name, 'Sent'));
-
-    await db.insert(threadFolders).values({
-      threadId: newThread.id,
-      folderId: sentFolder.id,
-    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.errors[0].message, previous: rawFormData };
     }
     return {
-      error: 'Failed to send email. Please try again.',
+      error: error instanceof Error ? error.message : 'Failed to create organization',
       previous: rawFormData,
     };
   }
 
-  revalidatePath('/', 'layout');
-  redirect(`/f/sent/${newThread.id}`);
+  revalidatePath('/organizations');
+  redirect(`/organizations/${newOrg.slug}`);
 }
 
-export async function moveThreadToDone(_: any, formData: FormData) {
-  if (process.env.VERCEL_ENV === 'production') {
+export async function inviteMemberAction(_: any, formData: FormData) {
+  const rawFormData = {
+    organizationId: parseInt(formData.get('organizationId') as string),
+    email: formData.get('email'),
+    role: formData.get('role'),
+  };
+
+  try {
+    const user = await getCurrentUser();
+    const validatedFields = inviteMemberSchema.parse(rawFormData);
+
+    // Check if current user is admin
+    await checkOrgMembership(user.id, validatedFields.organizationId, 'admin');
+
+    // Find or create user by email
+    let invitedUser = await db.query.users.findFirst({
+      where: eq(users.email, validatedFields.email),
+    });
+
+    if (!invitedUser) {
+      // Create a placeholder user (they'll complete profile on first login)
+      [invitedUser] = await db
+        .insert(users)
+        .values({
+          email: validatedFields.email,
+          username: validatedFields.email.split('@')[0] + Date.now(), // Temporary unique username
+        })
+        .returning();
+    }
+
+    // Check if already a member
+    const existingMembership = await db.query.organizationMembers.findFirst({
+      where: and(
+        eq(organizationMembers.userId, invitedUser.id),
+        eq(organizationMembers.organizationId, validatedFields.organizationId)
+      ),
+    });
+
+    if (existingMembership) {
+      return { error: 'User is already a member', previous: rawFormData };
+    }
+
+    // Add member
+    await db.insert(organizationMembers).values({
+      organizationId: validatedFields.organizationId,
+      userId: invitedUser.id,
+      role: validatedFields.role,
+    });
+
+    return { success: true, error: null };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { error: error.errors[0].message, previous: rawFormData };
+    }
     return {
-      error: 'Only works on localhost for now',
+      error: error instanceof Error ? error.message : 'Failed to invite member',
+      previous: rawFormData,
+    };
+  }
+}
+
+export async function removeMemberAction(_: any, formData: FormData) {
+  const organizationId = parseInt(formData.get('organizationId') as string);
+  const memberId = parseInt(formData.get('memberId') as string);
+
+  try {
+    const user = await getCurrentUser();
+
+    // Check if current user is admin
+    await checkOrgMembership(user.id, organizationId, 'admin');
+
+    // Can't remove the owner
+    const org = await db.query.organizations.findFirst({
+      where: eq(organizations.id, organizationId),
+    });
+
+    if (org?.ownerId === memberId) {
+      return { error: 'Cannot remove organization owner' };
+    }
+
+    // Remove member
+    await db
+      .delete(organizationMembers)
+      .where(
+        and(
+          eq(organizationMembers.userId, memberId),
+          eq(organizationMembers.organizationId, organizationId)
+        )
+      );
+
+    revalidatePath(`/organizations`);
+    return { success: true, error: null };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : 'Failed to remove member',
+    };
+  }
+}
+
+// Recording actions
+export async function createRecordingAction(_: any, formData: FormData) {
+  let newRecording;
+  const rawFormData = {
+    name: formData.get('name'),
+    organizationId: parseInt(formData.get('organizationId') as string),
+  };
+
+  try {
+    const user = await getCurrentUser();
+    const validatedFields = createRecordingSchema.parse(rawFormData);
+
+    // Check membership
+    await checkOrgMembership(user.id, validatedFields.organizationId);
+
+    // Create recording
+    [newRecording] = await db
+      .insert(recordings)
+      .values({
+        name: validatedFields.name,
+        organizationId: validatedFields.organizationId,
+        createdBy: user.id,
+        state: 'queued',
+      })
+      .returning();
+
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { error: error.errors[0].message, previous: rawFormData };
+    }
+    return {
+      error: error instanceof Error ? error.message : 'Failed to create recording',
+      previous: rawFormData,
     };
   }
 
-  let threadId = formData.get('threadId');
+  revalidatePath('/recordings');
+  redirect(`/recordings/${newRecording.id}`);
+}
 
-  if (!threadId || typeof threadId !== 'string') {
-    return { error: 'Invalid thread ID', success: false };
-  }
+export async function updateRecordingStateAction(_: any, formData: FormData) {
+  const rawFormData = {
+    recordingId: parseInt(formData.get('recordingId') as string),
+    state: formData.get('state'),
+    result: formData.get('result'),
+  };
 
   try {
-    let doneFolder = await db.query.folders.findFirst({
-      where: eq(folders.name, 'Archive'),
+    const user = await getCurrentUser();
+    const validatedFields = updateRecordingStateSchema.parse(rawFormData);
+
+    // Get recording to check organization
+    const recording = await db.query.recordings.findFirst({
+      where: eq(recordings.id, validatedFields.recordingId),
     });
 
-    if (!doneFolder) {
-      return { error: 'Done folder not found', success: false };
+    if (!recording) {
+      return { error: 'Recording not found' };
     }
 
-    let parsedThreadId = parseInt(threadId, 10);
+    // Check membership
+    await checkOrgMembership(user.id, recording.organizationId);
 
+    let resultId = recording.resultId;
+
+    // If processing is complete and we have a result, save it
+    if (validatedFields.state === 'processed' && validatedFields.result) {
+      const [newResult] = await db
+        .insert(recordingResults)
+        .values({
+          result: validatedFields.result,
+        })
+        .returning();
+
+      resultId = newResult.id;
+    }
+
+    // Update recording
     await db
-      .delete(threadFolders)
-      .where(eq(threadFolders.threadId, parsedThreadId));
+      .update(recordings)
+      .set({
+        state: validatedFields.state,
+        resultId: resultId,
+        updatedAt: new Date(),
+      })
+      .where(eq(recordings.id, validatedFields.recordingId));
 
-    await db.insert(threadFolders).values({
-      threadId: parsedThreadId,
-      folderId: doneFolder.id,
-    });
-
-    revalidatePath('/f/[name]');
-    revalidatePath('/f/[name]/[id]');
+    revalidatePath('/recordings');
     return { success: true, error: null };
   } catch (error) {
-    console.error('Failed to move thread to Done:', error);
-    return { success: false, error: 'Failed to move thread to Done' };
+    if (error instanceof z.ZodError) {
+      return { error: error.errors[0].message, previous: rawFormData };
+    }
+    return {
+      error: error instanceof Error ? error.message : 'Failed to update recording',
+      previous: rawFormData,
+    };
   }
 }
 
-export async function moveThreadToTrash(_: any, formData: FormData) {
-  if (process.env.VERCEL_ENV === 'production') {
-    return {
-      error: 'Only works on localhost for now',
-    };
-  }
-
-  let threadId = formData.get('threadId');
-
-  if (!threadId || typeof threadId !== 'string') {
-    return { error: 'Invalid thread ID', success: false };
-  }
+export async function deleteRecordingAction(_: any, formData: FormData) {
+  const recordingId = parseInt(formData.get('recordingId') as string);
 
   try {
-    let trashFolder = await db.query.folders.findFirst({
-      where: eq(folders.name, 'Trash'),
+    const user = await getCurrentUser();
+
+    // Get recording to check organization
+    const recording = await db.query.recordings.findFirst({
+      where: eq(recordings.id, recordingId),
     });
 
-    if (!trashFolder) {
-      return { error: 'Trash folder not found', success: false };
+    if (!recording) {
+      return { error: 'Recording not found' };
     }
 
-    let parsedThreadId = parseInt(threadId, 10);
+    // Check if user is admin of the organization
+    await checkOrgMembership(user.id, recording.organizationId, 'admin');
 
-    await db
-      .delete(threadFolders)
-      .where(eq(threadFolders.threadId, parsedThreadId));
+    // Delete recording (will cascade delete result if exists)
+    await db.delete(recordings).where(eq(recordings.id, recordingId));
 
-    await db.insert(threadFolders).values({
-      threadId: parsedThreadId,
-      folderId: trashFolder.id,
-    });
+    // If there was a result, delete it
+    if (recording.resultId) {
+      await db.delete(recordingResults).where(eq(recordingResults.id, recording.resultId));
+    }
 
-    revalidatePath('/f/[name]');
-    revalidatePath('/f/[name]/[id]');
+    revalidatePath('/recordings');
     return { success: true, error: null };
   } catch (error) {
-    console.error('Failed to move thread to Trash:', error);
-    return { success: false, error: 'Failed to move thread to Trash' };
+    return {
+      error: error instanceof Error ? error.message : 'Failed to delete recording',
+    };
   }
 }

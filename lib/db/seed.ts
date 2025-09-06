@@ -1,198 +1,227 @@
+// lib/seed.ts
 import { db } from './drizzle';
 import {
-  emails,
-  folders,
-  threadFolders,
-  threads,
-  userFolders,
   users,
+  organizations,
+  organizationMembers,
+  recordings,
+  recordingResults,
 } from './schema';
 
 async function seed() {
   console.log('Starting seed process...');
+
+  // Clear existing data
+  await db.delete(organizationMembers);
+  await db.delete(recordings);
+  await db.delete(recordingResults);
+  await db.delete(organizations);
+  await db.delete(users);
+
   await seedUsers();
-  await seedFolders();
-  await seedThreadsAndEmails();
+  await seedOrganizations();
+  await seedRecordings();
+
   console.log('Seed process completed successfully.');
 }
 
 async function seedUsers() {
-  await db.insert(users).values([
+  console.log('Seeding users...');
+
+  const insertedUsers = await db.insert(users).values([
     {
       firstName: 'Lee',
       lastName: 'Robinson',
       email: 'lee@leerob.com',
-      jobTitle: 'VP of Product',
-      company: 'Vercel',
-      location: 'Des Moines, Iowa',
-      avatarUrl: 'https://github.com/leerob.png',
-      linkedin: 'https://www.linkedin.com/in/leeerob/',
-      twitter: 'https://x.com/leerob',
-      github: 'https://github.com/leerob',
+      username: 'leerob',
+      emailVerified: new Date(),
+      image: 'https://github.com/leerob.png',
     },
     {
       firstName: 'Guillermo',
       lastName: 'Rauch',
       email: 'rauchg@vercel.com',
-      jobTitle: 'CEO',
-      company: 'Vercel',
-      location: 'San Francisco, California',
-      avatarUrl: 'https://github.com/rauchg.png',
+      username: 'rauchg',
+      emailVerified: new Date(),
+      image: 'https://github.com/rauchg.png',
     },
     {
       firstName: 'Delba',
       lastName: 'de Oliveira',
       email: 'delba.oliveira@vercel.com',
-      jobTitle: 'Staff DX Engineer',
-      company: 'Vercel',
-      location: 'London, UK',
-      avatarUrl: 'https://github.com/delbaoliveira.png',
+      username: 'delbaoliveira',
+      emailVerified: new Date(),
+      image: 'https://github.com/delbaoliveira.png',
     },
     {
       firstName: 'Tim',
       lastName: 'Neutkens',
       email: 'tim@vercel.com',
-      jobTitle: 'Next.js Lead',
-      company: 'Vercel',
-      location: 'Amsterdam, Netherlands',
-      avatarUrl: 'https://github.com/timneutkens.png',
+      username: 'timneutkens',
+      emailVerified: new Date(),
+      image: 'https://github.com/timneutkens.png',
     },
-  ]);
+  ]).returning();
+
+  console.log(`Created ${insertedUsers.length} users`);
+  return insertedUsers;
 }
 
-async function seedFolders() {
-  await db
-    .insert(folders)
-    .values([
-      { name: 'Inbox' },
-      { name: 'Flagged' },
-      { name: 'Sent' },
-      { name: 'Archive' },
-      { name: 'Spam' },
-      { name: 'Trash' },
-    ]);
+async function seedOrganizations() {
+  console.log('Seeding organizations...');
 
-  const userFolderValues = [];
-  for (let userId = 1; userId <= 4; userId++) {
-    for (let folderId = 1; folderId <= 6; folderId++) {
-      userFolderValues.push({ userId, folderId });
-    }
+  const allUsers = await db.select().from(users);
+
+  // Create personal organizations for each user
+  for (const user of allUsers) {
+    const [personalOrg] = await db
+      .insert(organizations)
+      .values({
+        name: `${user.username}'s Organization`,
+        slug: user.username,
+        description: `Personal organization for ${user.firstName} ${user.lastName}`,
+        isPersonal: true,
+        ownerId: user.id,
+      })
+      .returning();
+
+    // Add user as admin of their personal organization
+    await db.insert(organizationMembers).values({
+      organizationId: personalOrg.id,
+      userId: user.id,
+      role: 'admin',
+    });
+
+    console.log(`Created personal organization for ${user.username}`);
   }
-  await db.insert(userFolders).values(userFolderValues);
+
+  // Create a shared organization (Vercel)
+  const leeUser = allUsers.find(u => u.username === 'leerob');
+  if (leeUser) {
+    const [vercelOrg] = await db
+      .insert(organizations)
+      .values({
+        name: 'Vercel',
+        slug: 'vercel',
+        description: 'The company behind Next.js',
+        isPersonal: false,
+        ownerId: leeUser.id,
+      })
+      .returning();
+
+    // Add all users to Vercel organization with different roles
+    for (const user of allUsers) {
+      await db.insert(organizationMembers).values({
+        organizationId: vercelOrg.id,
+        userId: user.id,
+        role: user.username === 'leerob' || user.username === 'rauchg' ? 'admin' : 'member',
+      });
+    }
+
+    console.log('Created Vercel organization with members');
+  }
 }
 
-async function seedThreadsAndEmails() {
-  // Thread 1: Guillermo talking about Vercel customer feedback
-  const thread1 = await db
-    .insert(threads)
-    .values({
-      subject: 'Vercel Customer Feedback',
-      lastActivityDate: new Date('2023-05-15T10:00:00'),
-    })
-    .returning();
+async function seedRecordings() {
+  console.log('Seeding recordings...');
 
-  await db.insert(emails).values([
-    {
-      threadId: thread1[0].id,
-      senderId: 2, // Guillermo
-      recipientId: 1, // Lee
-      subject: 'Vercel Customer Feedback',
-      body: 'Met with Daniel today. He had some great feedback. After you make a change to your environment variables, he wants to immediately redeploy the application. We should make a toast that has a CTA to redeploy. Thoughts?',
-      sentDate: new Date('2023-05-15T10:00:00'),
-    },
-    {
-      threadId: thread1[0].id,
-      senderId: 1, // Lee
-      recipientId: 2, // Guillermo
-      subject: 'Re: Vercel Customer Feedback',
-      body: "Good call. I've seen this multiple times now. Let's do it.",
-      sentDate: new Date('2023-05-15T11:30:00'),
-    },
-    {
-      threadId: thread1[0].id,
-      senderId: 2, // Guillermo
-      recipientId: 1, // Lee
-      subject: 'Re: Vercel Customer Feedback',
-      body: "Amazing. Let me know when it shipped and I'll follow up.",
-      sentDate: new Date('2023-05-15T13:45:00'),
-    },
-  ]);
+  const vercelOrg = await db.query.organizations.findFirst({
+    where: (org, { eq }) => eq(org.slug, 'vercel'),
+  });
 
-  // Thread 2: Delba talking about Next.js and testing out new features
-  const thread2 = await db
-    .insert(threads)
-    .values({
-      subject: 'New Next.js RFC',
-      lastActivityDate: new Date('2023-05-16T09:00:00'),
-    })
-    .returning();
+  const leeUser = await db.query.users.findFirst({
+    where: (user, { eq }) => eq(user.username, 'leerob'),
+  });
 
-  await db.insert(emails).values([
-    {
-      threadId: thread2[0].id,
-      senderId: 3, // Delba
-      recipientId: 1, // Lee
-      subject: 'New Next.js RFC',
-      body: "I'm working on the first draft of the Dynamic IO docs and examples. Do you want to take a look?",
-      sentDate: new Date('2023-05-16T09:00:00'),
-    },
-    {
-      threadId: thread2[0].id,
-      senderId: 1, // Lee
-      recipientId: 3, // Delba
-      subject: 'Re: New Next.js RFC',
-      body: "Absolutely. Let me take a look later tonight and I'll send over feedback.",
-      sentDate: new Date('2023-05-16T10:15:00'),
-    },
-    {
-      threadId: thread2[0].id,
-      senderId: 3, // Delba
-      recipientId: 1, // Lee
-      subject: 'Re: New Next.js RFC',
-      body: 'Thank you!',
-      sentDate: new Date('2023-05-16T11:30:00'),
-    },
-  ]);
+  const delbaUser = await db.query.users.findFirst({
+    where: (user, { eq }) => eq(user.username, 'delbaoliveira'),
+  });
 
-  // Thread 3: Tim with steps to test out Turbopack
-  const thread3 = await db
-    .insert(threads)
-    .values({
-      subject: 'Turbopack Testing',
-      lastActivityDate: new Date('2023-05-17T14:00:00'),
-    })
-    .returning();
+  if (vercelOrg && leeUser && delbaUser) {
+    // Create some sample recording results
+    const [result1] = await db
+      .insert(recordingResults)
+      .values({
+        result: Buffer.from('Sample recording data for meeting 1').toString('base64'),
+      })
+      .returning();
 
-  await db.insert(emails).values([
-    {
-      threadId: thread3[0].id,
-      senderId: 4, // Tim
-      recipientId: 1, // Lee
-      subject: 'Turbopack Testing Steps',
-      body: `Hi Lee,
+    const [result2] = await db
+      .insert(recordingResults)
+      .values({
+        result: Buffer.from('Sample recording data for standup').toString('base64'),
+      })
+      .returning();
 
-Here are the steps to test out Turbopack:
+    // Create recordings with different states
+    const _recordings = await db
+      .insert(recordings)
+      .values([
+        {
+          name: 'Product Planning Meeting',
+          state: 'processed',
+          organizationId: vercelOrg.id,
+          createdBy: leeUser.id,
+          resultId: result1.id,
+          createdAt: new Date('2025-01-15T10:00:00'),
+          updatedAt: new Date('2025-01-15T11:00:00'),
+        },
+        {
+          name: 'Daily Standup',
+          state: 'processed',
+          organizationId: vercelOrg.id,
+          createdBy: delbaUser.id,
+          resultId: result2.id,
+          createdAt: new Date('2025-01-16T09:00:00'),
+          updatedAt: new Date('2025-01-16T09:30:00'),
+        },
+        {
+          name: 'Customer Feedback Session',
+          state: 'processing',
+          organizationId: vercelOrg.id,
+          createdBy: leeUser.id,
+          resultId: null,
+          createdAt: new Date('2025-01-17T14:00:00'),
+          updatedAt: new Date('2025-01-17T14:00:00'),
+        },
+        {
+          name: 'Architecture Review',
+          state: 'queued',
+          organizationId: vercelOrg.id,
+          createdBy: leeUser.id,
+          resultId: null,
+          createdAt: new Date('2025-01-17T16:00:00'),
+          updatedAt: new Date('2025-01-17T16:00:00'),
+        },
+      ])
+      .returning();
 
-1. npx create-next-app@canary
-2. Select Turbopack when prompted
-3. Run 'npm install' to install dependencies
-4. Start the development server with 'npm run dev -- --turbo'
-5. That's it!
+    console.log(`Created ${_recordings.length} recordings`);
+  }
 
-Let me know if you encounter any issues or have any questions.
+  // Create recordings in personal organizations
+  const leeOrg = await db.query.organizations.findFirst({
+    where: (org, { eq, and }) => and(eq(org.slug, 'leerob'), eq(org.isPersonal, true)),
+  });
 
-Best,
-Tim`,
-      sentDate: new Date('2023-05-17T14:00:00'),
-    },
-  ]);
+  if (leeOrg && leeUser) {
+    const [personalResult] = await db
+      .insert(recordingResults)
+      .values({
+        result: Buffer.from('Personal recording data').toString('base64'),
+      })
+      .returning();
 
-  // Add threads to folders
-  await db.insert(threadFolders).values([
-    { threadId: thread1[0].id, folderId: 1 }, // Inbox
-    { threadId: thread2[0].id, folderId: 1 }, // Inbox
-    { threadId: thread3[0].id, folderId: 1 }, // Inbox
-  ]);
+    await db.insert(recordings).values({
+      name: 'Personal Project Notes',
+      state: 'processed',
+      organizationId: leeOrg.id,
+      createdBy: leeUser.id,
+      resultId: personalResult.id,
+    });
+
+    console.log('Created personal recording for Lee');
+  }
 }
 
 seed()

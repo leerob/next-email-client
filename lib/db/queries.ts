@@ -1,274 +1,349 @@
+// lib/queries.ts
 import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
-import { toTitleCase } from '../utils';
 import { db } from './drizzle';
-import { emails, folders, threadFolders, threads, users } from './schema';
+import {
+  organizations,
+  organizationMembers,
+  recordings,
+  recordingResults,
+  users
+} from './schema';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-type Folder = {
-  name: string;
-  thread_count: number;
-};
-
-export async function getFoldersWithThreadCount() {
-  'use cache';
-
-  let foldersWithCount = await db
-    .select({
-      name: folders.name,
-      thread_count: sql<number>`count(${threadFolders.threadId})`.as(
-        'thread_count',
-      ),
-    })
-    .from(folders)
-    .leftJoin(threadFolders, eq(folders.id, threadFolders.folderId))
-    .groupBy(folders.name);
-
-  let specialFoldersOrder = ['Inbox', 'Flagged', 'Sent'];
-  let specialFolders = specialFoldersOrder
-    .map((name) => foldersWithCount.find((folder) => folder.name === name))
-    .filter(Boolean) as Folder[];
-  let otherFolders = foldersWithCount.filter(
-    (folder) => !specialFoldersOrder.includes(folder.name),
-  ) as Folder[];
-
-  return { specialFolders, otherFolders };
+// Helper to get current user from session
+async function getCurrentUserId() {
+  const session = await getServerSession(authOptions);
+  return session?.user?.id || null;
 }
 
-export async function getThreadsForFolder(folderName: string) {
+// User queries
+export async function getUserById(userId: number) {
   'use cache';
 
-  let originalFolderName = toTitleCase(decodeURIComponent(folderName));
-
-  const threadsWithEmails = await db
-    .select({
-      id: threads.id,
-      subject: threads.subject,
-      lastActivityDate: threads.lastActivityDate,
-      emails: sql<
-        {
-          id: number;
-          senderId: number;
-          recipientId: number;
-          subject: string;
-          body: string;
-          sentDate: Date;
-          sender: {
-            id: number;
-            firstName: string;
-            lastName: string;
-            email: string;
-          };
-        }[]
-      >`json_agg(json_build_object(
-        'id', ${emails.id},
-        'senderId', ${emails.senderId},
-        'recipientId', ${emails.recipientId},
-        'subject', ${emails.subject},
-        'body', ${emails.body},
-        'sentDate', ${emails.sentDate},
-        'sender', json_build_object(
-          'id', ${users.id},
-          'firstName', ${users.firstName},
-          'lastName', ${users.lastName},
-          'email', ${users.email}
-        )
-      ) ORDER BY ${emails.sentDate} DESC)`,
-    })
-    .from(threads)
-    .innerJoin(threadFolders, eq(threads.id, threadFolders.threadId))
-    .innerJoin(folders, eq(threadFolders.folderId, folders.id))
-    .innerJoin(emails, eq(threads.id, emails.threadId))
-    .innerJoin(users, eq(emails.senderId, users.id))
-    .where(eq(folders.name, originalFolderName))
-    .groupBy(threads.id)
-    .orderBy(desc(threads.lastActivityDate));
-
-  return threadsWithEmails;
+  return db.query.users.findFirst({
+    where: eq(users.id, userId),
+  });
 }
 
-export async function searchThreads(search: string | undefined) {
-  if (!search) {
-    return [];
-  }
-
-  const results = await db
-    .select({
-      id: threads.id,
-      subject: threads.subject,
-      lastActivityDate: threads.lastActivityDate,
-      folderName: folders.name,
-      emailId: emails.id,
-      emailSubject: emails.subject,
-      emailBody: emails.body,
-      emailSentDate: emails.sentDate,
-      senderFirstName: users.firstName,
-      senderLastName: users.lastName,
-      senderEmail: users.email,
-    })
-    .from(threads)
-    .innerJoin(emails, eq(threads.id, emails.threadId))
-    .innerJoin(users, eq(emails.senderId, users.id))
-    .leftJoin(threadFolders, eq(threads.id, threadFolders.threadId))
-    .leftJoin(folders, eq(threadFolders.folderId, folders.id))
-    .where(
-      or(
-        ilike(users.firstName, `%${search}%`),
-        ilike(users.lastName, `%${search}%`),
-        ilike(users.email, `%${search}%`),
-        ilike(threads.subject, `%${search}%`),
-        ilike(emails.body, `%${search}%`),
-      ),
-    )
-    .orderBy(desc(threads.lastActivityDate), desc(emails.sentDate));
-
-  const threadMap = new Map();
-  for (const result of results) {
-    if (!threadMap.has(result.id)) {
-      threadMap.set(result.id, {
-        id: result.id,
-        subject: result.subject,
-        lastActivityDate: result.lastActivityDate,
-        folderName: result.folderName,
-        latestEmail: {
-          id: result.emailId,
-          subject: result.emailSubject,
-          body: result.emailBody,
-          sentDate: result.emailSentDate,
-          sender: {
-            firstName: result.senderFirstName,
-            lastName: result.senderLastName,
-            email: result.senderEmail,
-          },
-        },
-      });
-    }
-  }
-
-  return Array.from(threadMap.values());
-}
-
-export async function getThreadInFolder(folderName: string, threadId: string) {
+export async function getUserByEmail(email: string) {
   'use cache';
 
-  let originalFolderName = toTitleCase(decodeURIComponent(folderName));
-  let result = await db
-    .select({
-      id: threads.id,
-      subject: threads.subject,
-      lastActivityDate: threads.lastActivityDate,
-      senderFirstName: users.firstName,
-      senderLastName: users.lastName,
-      senderEmail: users.email,
-    })
-    .from(threads)
-    .innerJoin(threadFolders, eq(threads.id, threadFolders.threadId))
-    .innerJoin(folders, eq(threadFolders.folderId, folders.id))
-    .innerJoin(emails, eq(threads.id, emails.threadId))
-    .innerJoin(users, eq(emails.senderId, users.id))
-    .where(
-      and(
-        eq(folders.name, originalFolderName),
-        eq(threads.id, parseInt(threadId)),
-      ),
-    );
-
-  return result[0];
+  return db.query.users.findFirst({
+    where: eq(users.email, email),
+  });
 }
 
-export async function getEmailsForThread(threadId: string) {
+export async function getUserByUsername(username: string) {
   'use cache';
 
-  const result = await db
+  return db.query.users.findFirst({
+    where: eq(users.username, username),
+  });
+}
+
+// Organization queries
+export async function getUserOrganizations(userId?: number) {
+  'use cache';
+
+  const currentUserId = userId || await getCurrentUserId();
+  if (!currentUserId) return [];
+
+  const memberships = await db
     .select({
-      id: threads.id,
-      subject: threads.subject,
-      emailId: emails.id,
-      body: emails.body,
-      sentDate: emails.sentDate,
-      senderId: users.id,
-      senderFirstName: users.firstName,
-      senderLastName: users.lastName,
-      recipientId: emails.recipientId,
+      id: organizations.id,
+      name: organizations.name,
+      slug: organizations.slug,
+      description: organizations.description,
+      isPersonal: organizations.isPersonal,
+      ownerId: organizations.ownerId,
+      role: organizationMembers.role,
+      joinedAt: organizationMembers.joinedAt,
+      memberCount: sql<number>`(
+        SELECT COUNT(*)::int 
+        FROM ${organizationMembers} om
+        WHERE om.organization_id = ${organizations.id}
+      )`,
+      recordingCount: sql<number>`(
+        SELECT COUNT(*)::int
+        FROM ${recordings} r
+        WHERE r.organization_id = ${organizations.id}
+      )`,
     })
-    .from(threads)
-    .innerJoin(emails, eq(threads.id, emails.threadId))
-    .innerJoin(users, eq(emails.senderId, users.id))
-    .where(eq(threads.id, parseInt(threadId, 10)))
-    .orderBy(emails.sentDate);
+    .from(organizationMembers)
+    .innerJoin(organizations, eq(organizationMembers.organizationId, organizations.id))
+    .where(eq(organizationMembers.userId, currentUserId))
+    .orderBy(desc(organizations.isPersonal), organizations.name);
 
-  if (result.length === 0) {
-    return null;
-  }
+  return memberships;
+}
 
-  const thread = {
-    id: result[0].id,
-    subject: result[0].subject,
-    emails: result.map((row) => ({
-      id: row.emailId,
-      body: row.body,
-      sentDate: row.sentDate,
-      sender: {
-        id: row.senderId,
-        firstName: row.senderFirstName,
-        lastName: row.senderLastName,
-      },
-      recipientId: row.recipientId,
-    })),
+export async function getOrganizationBySlug(slug: string) {
+  'use cache';
+
+  const org = await db.query.organizations.findFirst({
+    where: eq(organizations.slug, slug),
+  });
+
+  if (!org) return null;
+
+  // Get member count and recording count
+  const stats = await db
+    .select({
+      memberCount: sql<number>`COUNT(DISTINCT ${organizationMembers.userId})::int`,
+      recordingCount: sql<number>`COUNT(DISTINCT ${recordings.id})::int`,
+    })
+    .from(organizations)
+    .leftJoin(organizationMembers, eq(organizations.id, organizationMembers.organizationId))
+    .leftJoin(recordings, eq(organizations.id, recordings.organizationId))
+    .where(eq(organizations.id, org.id))
+    .groupBy(organizations.id);
+
+  return {
+    ...org,
+    memberCount: stats[0]?.memberCount || 0,
+    recordingCount: stats[0]?.recordingCount || 0,
   };
-
-  return thread;
 }
 
-export async function getAllEmailAddresses() {
+export async function getOrganizationMembers(organizationId: number) {
   'use cache';
 
   return db
     .select({
+      id: users.id,
+      email: users.email,
+      username: users.username,
       firstName: users.firstName,
       lastName: users.lastName,
-      email: users.email,
+      image: users.image,
+      role: organizationMembers.role,
+      joinedAt: organizationMembers.joinedAt,
     })
-    .from(users);
+    .from(organizationMembers)
+    .innerJoin(users, eq(organizationMembers.userId, users.id))
+    .where(eq(organizationMembers.organizationId, organizationId))
+    .orderBy(organizationMembers.role, users.firstName);
 }
 
-export async function getUserProfile(userId: number) {
+export async function checkUserOrgAccess(userId: number, organizationId: number) {
   'use cache';
 
-  const userInfo = await db
-    .select({
-      id: users.id,
-      firstName: users.firstName,
-      lastName: users.lastName,
-      email: users.email,
-      jobTitle: users.jobTitle,
-      company: users.company,
-      location: users.location,
-      avatarUrl: users.avatarUrl,
-      linkedin: users.linkedin,
-      twitter: users.twitter,
-      github: users.github,
-    })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1)
-    .execute();
+  const membership = await db.query.organizationMembers.findFirst({
+    where: and(
+      eq(organizationMembers.userId, userId),
+      eq(organizationMembers.organizationId, organizationId)
+    ),
+  });
 
-  if (userInfo.length === 0) {
-    return null;
+  return membership;
+}
+
+// Recording queries
+export async function getOrganizationRecordings(organizationId: number) {
+  'use cache';
+
+  const currentUserId = await getCurrentUserId();
+  if (!currentUserId) return [];
+
+  // Check if user has access to this organization
+  const hasAccess = await checkUserOrgAccess(currentUserId, organizationId);
+  if (!hasAccess) return [];
+
+  return db
+    .select({
+      id: recordings.id,
+      name: recordings.name,
+      state: recordings.state,
+      createdAt: recordings.createdAt,
+      updatedAt: recordings.updatedAt,
+      hasResult: sql<boolean>`${recordings.resultId} IS NOT NULL`,
+      createdBy: {
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        username: users.username,
+        image: users.image,
+      },
+    })
+    .from(recordings)
+    .innerJoin(users, eq(recordings.createdBy, users.id))
+    .where(eq(recordings.organizationId, organizationId))
+    .orderBy(desc(recordings.createdAt));
+}
+
+export async function getRecordingById(recordingId: number) {
+  'use cache';
+
+  const currentUserId = await getCurrentUserId();
+  if (!currentUserId) return null;
+
+  const recording = await db.query.recordings.findFirst({
+    where: eq(recordings.id, recordingId),
+    with: {
+      organization: true,
+      createdByUser: true,
+      result: true,
+    },
+  });
+
+  if (!recording) return null;
+
+  // Check if user has access to this recording's organization
+  const hasAccess = await checkUserOrgAccess(currentUserId, recording.organizationId);
+  if (!hasAccess) return null;
+
+  return recording;
+}
+
+export async function getRecordingsByState(state: 'queued' | 'processing' | 'processed') {
+  'use cache';
+
+  const currentUserId = await getCurrentUserId();
+  if (!currentUserId) return [];
+
+  // Get user's organizations
+  const userOrgs = await getUserOrganizations(currentUserId);
+  const orgIds = userOrgs.map(org => org.id);
+
+  if (orgIds.length === 0) return [];
+
+  return db
+    .select({
+      id: recordings.id,
+      name: recordings.name,
+      state: recordings.state,
+      createdAt: recordings.createdAt,
+      updatedAt: recordings.updatedAt,
+      organization: {
+        id: organizations.id,
+        name: organizations.name,
+        slug: organizations.slug,
+      },
+      createdBy: {
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        username: users.username,
+      },
+    })
+    .from(recordings)
+    .innerJoin(organizations, eq(recordings.organizationId, organizations.id))
+    .innerJoin(users, eq(recordings.createdBy, users.id))
+    .where(
+      and(
+        eq(recordings.state, state),
+        sql`${recordings.organizationId} = ANY(${orgIds})`
+      )
+    )
+    .orderBy(desc(recordings.createdAt));
+}
+
+export async function searchRecordings(query: string) {
+  'use cache';
+
+  const currentUserId = await getCurrentUserId();
+  if (!currentUserId || !query) return [];
+
+  // Get user's organizations
+  const userOrgs = await getUserOrganizations(currentUserId);
+  const orgIds = userOrgs.map(org => org.id);
+
+  if (orgIds.length === 0) return [];
+
+  return db
+    .select({
+      id: recordings.id,
+      name: recordings.name,
+      state: recordings.state,
+      createdAt: recordings.createdAt,
+      organization: {
+        id: organizations.id,
+        name: organizations.name,
+        slug: organizations.slug,
+      },
+      createdBy: {
+        firstName: users.firstName,
+        lastName: users.lastName,
+      },
+    })
+    .from(recordings)
+    .innerJoin(organizations, eq(recordings.organizationId, organizations.id))
+    .innerJoin(users, eq(recordings.createdBy, users.id))
+    .where(
+      and(
+        sql`${recordings.organizationId} = ANY(${orgIds})`,
+        or(
+          ilike(recordings.name, `%${query}%`),
+          ilike(organizations.name, `%${query}%`)
+        )
+      )
+    )
+    .orderBy(desc(recordings.createdAt))
+    .limit(20);
+}
+
+// Dashboard stats
+export async function getDashboardStats() {
+  'use cache';
+
+  const currentUserId = await getCurrentUserId();
+  if (!currentUserId) return null;
+
+  // Get user's organizations
+  const userOrgs = await getUserOrganizations(currentUserId);
+  const orgIds = userOrgs.map(org => org.id);
+
+  if (orgIds.length === 0) {
+    return {
+      totalOrganizations: 0,
+      totalRecordings: 0,
+      queuedRecordings: 0,
+      processingRecordings: 0,
+      processedRecordings: 0,
+      recentRecordings: [],
+    };
   }
 
-  const latestThreads = await db
+  // Get recording counts by state
+  const recordingStats = await db
     .select({
-      subject: threads.subject,
+      state: recordings.state,
+      count: sql<number>`COUNT(*)::int`,
     })
-    .from(threads)
-    .innerJoin(emails, eq(emails.threadId, threads.id))
-    .where(eq(emails.senderId, userId))
-    .orderBy(desc(threads.lastActivityDate))
-    .limit(3)
-    .execute();
+    .from(recordings)
+    .where(sql`${recordings.organizationId} = ANY(${orgIds})`)
+    .groupBy(recordings.state);
+
+  const statsByState = recordingStats.reduce((acc, stat) => {
+    acc[stat.state] = stat.count;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Get recent recordings
+  const recentRecordings = await db
+    .select({
+      id: recordings.id,
+      name: recordings.name,
+      state: recordings.state,
+      createdAt: recordings.createdAt,
+      organization: {
+        name: organizations.name,
+        slug: organizations.slug,
+      },
+    })
+    .from(recordings)
+    .innerJoin(organizations, eq(recordings.organizationId, organizations.id))
+    .where(sql`${recordings.organizationId} = ANY(${orgIds})`)
+    .orderBy(desc(recordings.createdAt))
+    .limit(5);
 
   return {
-    ...userInfo[0],
-    latestThreads,
+    totalOrganizations: userOrgs.length,
+    totalRecordings: (statsByState.queued || 0) + (statsByState.processing || 0) + (statsByState.processed || 0),
+    queuedRecordings: statsByState.queued || 0,
+    processingRecordings: statsByState.processing || 0,
+    processedRecordings: statsByState.processed || 0,
+    recentRecordings,
   };
 }

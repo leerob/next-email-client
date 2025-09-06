@@ -36,8 +36,7 @@ pnpm db:setup
 Then, run the database migrations and seed the database with emails and folders:
 
 ```bash
-pnpm db:migrate
-pnpm db:seed
+pnpm db:migrate # automatically seeds
 ```
 
 Finally, run the Next.js development server:

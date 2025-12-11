@@ -26,7 +26,7 @@
     "drizzle-orm": "^0.36.4",
     "geist": "^1.3.1",
     "lucide-react": "^0.462.0",
-    "next": "15.6.0-canary.58",
+    "next": "15.6.0-canary.59",
     "postcss": "^8.4.49",
     "postgres": "^3.4.5",
     "react": "19.0.0",
